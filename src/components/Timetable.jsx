@@ -240,12 +240,13 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
           const theme = colorFor(b.c.maMH || b.c.maLop)
           const courseCode = b.c.maMH || b.c.maLop
           const dateRange = getDateRange(b.c.nhd, b.c.nk1)
+          const dateTooltip = getDateTooltip(b.c.nhd, b.c.nk1)
           return (
             <div
               key={i}
               className="tt-block"
               onClick={() => onSelectCourse?.(courseCode)}
-              title={`${b.c.tenMH} (${b.c.maLop})${dateRange ? ` | Ngày học: ${b.c.nhd || ''} - ${b.c.nk1 || ''}` : ''} — Click để lọc môn học này`}
+              title={`${b.c.tenMH} (${b.c.maLop})${dateTooltip ? ` | ${dateTooltip}` : ''} — Click để lọc môn học này`}
               style={{
                 gridColumn: dayCol(b.dayKey),
                 gridRow: `${tietRow(b.startTiet)} / ${tietRow(b.endTiet) + 1}`,
@@ -291,7 +292,7 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
                 </div>
               )}
               {dateRange && (
-                <div className="tt-block-date" title={`Ngày học: ${b.c.nhd || ''} – ${b.c.nk1 || ''}`}>
+                <div className="tt-block-date" title={dateTooltip || undefined}>
                   <span className="tt-gv-icon">📅</span> {dateRange}
                 </div>
               )}
@@ -319,12 +320,13 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
               const theme = colorFor(c.maMH || c.maLop)
               const courseCode = c.maMH || c.maLop
               const dateRange = getDateRange(c.nhd, c.nk1)
+              const dateTooltip = getDateTooltip(c.nhd, c.nk1)
               return (
                 <div
                   key={c.id}
                   className="tt-chip"
                   onClick={() => onSelectCourse?.(courseCode)}
-                  title={`${c.tenMH} (${c.maLop})${dateRange ? ` | Ngày học: ${c.nhd || ''} - ${c.nk1 || ''}` : ''} — Click để lọc môn học này`}
+                  title={`${c.tenMH} (${c.maLop})${dateTooltip ? ` | ${dateTooltip}` : ''} — Click để lọc môn học này`}
                   style={{
                     '--c-bg': theme.bg,
                     '--c-border': theme.border,
@@ -368,7 +370,7 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
                     </div>
                   )}
                   {dateRange && (
-                    <div className="tt-block-date" title={`Ngày học: ${c.nhd || ''} – ${c.nk1 || ''}`}>
+                    <div className="tt-block-date" title={dateTooltip || undefined}>
                       <span className="tt-gv-icon">📅</span> {dateRange}
                     </div>
                   )}
@@ -414,11 +416,48 @@ function formatDateStr(val) {
   return s
 }
 
+function formatDateFull(val) {
+  if (!val) return ''
+  const s = String(val).trim()
+  if (!s) return ''
+  if (/^\d{5}$/.test(s)) {
+    const d = new Date(Math.round((Number(s) - 25567) * 86400 * 1000))
+    if (!isNaN(d.getTime())) {
+      const day = String(d.getDate()).padStart(2, '0')
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const year = d.getFullYear()
+      return `${day}/${month}/${year}`
+    }
+  }
+  const mIso = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/)
+  if (mIso) {
+    return `${mIso[3].padStart(2, '0')}/${mIso[2].padStart(2, '0')}/${mIso[1]}`
+  }
+  const mDmy = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})/)
+  if (mDmy) {
+    return `${mDmy[1].padStart(2, '0')}/${mDmy[2].padStart(2, '0')}/${mDmy[3]}`
+  }
+  const mDm = s.match(/^(\d{1,2})[/.-](\d{1,2})$/)
+  if (mDm) {
+    return `${mDm[1].padStart(2, '0')}/${mDm[2].padStart(2, '0')}`
+  }
+  return s
+}
+
 function getDateRange(nhd, nk1) {
   const start = formatDateStr(nhd)
   const end = formatDateStr(nk1)
   if (start && end) return `${start} – ${end}`
   return start || end || ''
+}
+
+function getDateTooltip(nhd, nk1) {
+  const start = formatDateFull(nhd)
+  const end = formatDateFull(nk1)
+  if (start && end) return `Ngày học: ${start} - ${end}`
+  if (start) return `Ngày bắt đầu: ${start}`
+  if (end) return `Ngày kết thúc: ${end}`
+  return ''
 }
 
 export default Timetable
