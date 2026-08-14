@@ -258,8 +258,9 @@ export default function App() {
     const id = store.uid()
     setPlanState((s) => {
       const cur = s.plans.find((p) => p.id === s.activeId)
+      const nextNum = s.plans.length + 1
       return {
-        plans: [...s.plans, { id, name: `${cur.name} (copy)`, selected: [...cur.selected] }],
+        plans: [...s.plans, { id, name: `Phương án ${nextNum}`, selected: [...(cur?.selected || [])] }],
         activeId: id,
       }
     })
