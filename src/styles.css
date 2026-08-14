@@ -329,8 +329,8 @@ body {
 
 /* ---------- Main layout ---------- */
 .main { flex: 1; display: grid; grid-template-columns: minmax(420px, 1fr) minmax(560px, 1.25fr); gap: 12px; padding: 12px; overflow: hidden; }
-.main.main-vertical { grid-template-columns: 1fr; overflow-y: auto; }
-.main.main-vertical .pane { min-height: 520px; flex: none; }
+.main.main-vertical { grid-template-columns: 1fr; overflow-y: auto; scroll-snap-type: y proximity; }
+.main.main-vertical .pane { min-height: max(580px, calc(100vh - 145px)); height: calc(100vh - 145px); scroll-snap-align: start; flex: none; }
 .pane { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
 
 /* ---------- Class table ---------- */
