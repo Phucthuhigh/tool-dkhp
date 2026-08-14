@@ -432,7 +432,7 @@ select.ct-fi { cursor: pointer; appearance: none;
 .tt-scroll { overflow: auto; flex: 1; padding: 12px; }
 
 /* ---------- Timetable grid (theo theme) ---------- */
-.tt-wrap { background: var(--panel); color: var(--text); padding: 12px; border-radius: 8px; min-width: 640px; }
+.tt-wrap { background: var(--panel); color: var(--text); padding: 12px; border-radius: 8px; }
 .tt-title { font-size: 14px; margin-bottom: 10px; color: var(--text); }
 .tt-grid {
   display: grid;
@@ -441,7 +441,7 @@ select.ct-fi { cursor: pointer; appearance: none;
   gap: 3px;
 }
 .tt-corner { grid-column: 1; grid-row: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--muted); background: var(--tt-slot-bg); border-radius: 6px; }
-.tt-day-head { grid-row: 1; display: flex; align-items: center; justify-content: center; font-weight: 600; background: var(--tt-head-bg); color: var(--tt-head-text); border-radius: 6px; font-size: 13px; }
+.tt-day-head { grid-row: 1; display: flex; align-items: center; justify-content: center; font-weight: 600; background: var(--tt-head-bg); color: var(--tt-head-text); border-radius: 6px; font-size: 13px; overflow: hidden; }
 .tt-time { grid-column: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--tt-slot-bg); border-radius: 6px; padding: 2px; }
 .tt-time-n { font-weight: 600; font-size: 12px; color: var(--text); }
 .tt-time-h { font-size: 10px; color: var(--muted); }
@@ -500,7 +500,114 @@ select.ct-fi { cursor: pointer; appearance: none;
   display: flex; align-items: center; justify-content: center; font-size: 16px; z-index: 60;
 }
 
+
+/* ===================== RESPONSIVE ===================== */
+
+/* --- Tablet ≤ 980px: 2 cột → 1 cột dọc --- */
 @media (max-width: 980px) {
   .main { grid-template-columns: 1fr; overflow: auto; }
-  .pane { min-height: 420px; }
+  .pane { min-height: 380px; }
+  .fu { min-width: 0; flex: 1; }
+}
+
+/* --- Mobile ≤ 640px --- */
+@media (max-width: 640px) {
+  /* Header gọn lại */
+  .app-header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+  .app-title h1 { font-size: 15px; }
+  .app-title p { display: none; }
+  .app-logo { width: 38px; height: 38px; }
+  .app-header-right { gap: 8px; }
+  .guide-btn { padding: 8px 10px; }
+  .guide-btn > span:last-child { display: none; } /* ẩn chữ, chỉ còn ? */
+
+  /* File upload gọn */
+  .fu { min-width: 0; padding: 8px 12px; }
+  .fu-icon { font-size: 20px; }
+  .fu-sub { display: none; }
+  .fu-text strong { font-size: 12px; }
+
+  /* Plan bar — cuộn ngang thay vì wrap */
+  .plan-bar {
+    padding: 4px 8px; gap: 4px;
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .plan-tab { padding: 5px 10px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+
+  /* Plan actions — cuộn ngang */
+  .plan-actions {
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    padding: 4px 8px; gap: 4px; scrollbar-width: none;
+  }
+  .plan-actions::-webkit-scrollbar { display: none; }
+  .plan-actions button { white-space: nowrap; flex-shrink: 0; padding: 5px 9px; font-size: 11px; }
+
+  /* Main layout */
+  .main { padding: 6px; gap: 6px; }
+  .pane { min-height: 0; border-radius: 10px; }
+
+  /* Class table toolbar */
+  .ct-toolbar { padding: 6px 8px; gap: 6px; flex-wrap: wrap; }
+  .ct-count { font-size: 11px; }
+  .seg-btn { padding: 4px 8px; font-size: 11px; }
+  .ct-toggle { font-size: 11px; padding: 4px 8px; }
+
+  /* Ẩn cột ít quan trọng trên mobile */
+  .col-gv, .col-phong, .col-khoa, .col-hk { display: none; }
+  .ct-table { min-width: 400px; }
+  .ct-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* TKB toolbar */
+  .tt-toolbar { padding: 6px 10px; flex-wrap: wrap; gap: 6px; }
+  .tt-stats { font-size: 12px; gap: 10px; }
+  .export-main { font-size: 12px; padding: 7px 10px; }
+  .export-arrow { padding: 7px 8px; }
+
+  /* TKB scroll wrapper + grid */
+  .tt-scroll { padding: 6px; overflow: auto; -webkit-overflow-scrolling: touch; }
+  .tt-wrap { padding: 6px; min-width: 0; }
+  .tt-title { font-size: 13px; margin-bottom: 6px; }
+  .tt-grid {
+    grid-template-columns: 52px repeat(6, minmax(42px, 1fr));
+    grid-template-rows: 26px repeat(10, minmax(36px, auto));
+    gap: 2px;
+  }
+  .tt-day-head { font-size: 10px; }
+  .tt-corner { font-size: 9px; }
+  .tt-time-n { font-size: 10px; }
+  .tt-time-h { font-size: 8px; }
+  .tt-block { padding: 2px 4px; gap: 0; }
+  .tt-block-code { font-size: 8.5px; }
+  .tt-block-name { font-size: 8px; -webkit-line-clamp: 1; }
+  .tt-block-gv { display: none; }
+  .tt-block-meta { display: none; }
+  .tt-block-delete { width: 14px; height: 14px; font-size: 8px; top: 1px; right: 1px; }
+
+  /* Cảnh báo */
+  .warn-bar { padding: 6px 10px; }
+  .warn-item { font-size: 11px; }
+
+  /* Toast */
+  .toast { bottom: 12px; font-size: 12px; padding: 9px 14px; }
+
+  /* Modal */
+  .gm-modal { border-radius: 14px; }
+  .gm-banner { padding: 18px 16px 16px; }
+  .gm-banner h2 { font-size: 18px; }
+  .gm-body { padding: 14px; }
+  .gm-features { grid-template-columns: 1fr; }
+  .gm-footer { flex-direction: column; align-items: stretch; padding: 12px 14px; }
+  .cm-modal { border-radius: 14px; }
+}
+
+/* --- Small mobile ≤ 400px --- */
+@media (max-width: 400px) {
+  .app-header { padding: 8px 10px; }
+  .app-title h1 { font-size: 13px; }
+  .app-logo { width: 32px; height: 32px; }
+  .col-thu { display: none; }
+  .ct-table { min-width: 320px; }
+  .tt-grid {
+    grid-template-columns: 44px repeat(6, minmax(34px, 1fr));
+  }
 }
