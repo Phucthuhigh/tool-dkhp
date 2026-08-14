@@ -132,6 +132,13 @@ body {
   display: inline-flex; align-items: center; justify-content: center; transition: background .15s, border-color .15s;
 }
 .theme-btn:hover { background: var(--hover); border-color: var(--primary); }
+.layout-btn {
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  border-radius: 9px; padding: 8px 12px; cursor: pointer; font-size: 13px; font-weight: 600;
+  transition: background .15s, border-color .15s;
+}
+.layout-btn:hover { background: var(--hover); border-color: var(--primary); }
 .guide-btn {
   display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
   border: 1px solid var(--primary-soft-border); background: var(--primary-soft); color: var(--primary);
@@ -322,6 +329,8 @@ body {
 
 /* ---------- Main layout ---------- */
 .main { flex: 1; display: grid; grid-template-columns: minmax(420px, 1fr) minmax(560px, 1.25fr); gap: 12px; padding: 12px; overflow: hidden; }
+.main.main-vertical { grid-template-columns: 1fr; overflow-y: auto; }
+.main.main-vertical .pane { min-height: 520px; flex: none; }
 .pane { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
 
 /* ---------- Class table ---------- */
@@ -526,6 +535,7 @@ select.ct-fi { cursor: pointer; appearance: none;
   .app-header-right { gap: 8px; }
   .guide-btn { padding: 8px 10px; }
   .guide-btn > span:last-child { display: none; } /* ẩn chữ, chỉ còn ? */
+  .layout-btn { padding: 8px 10px; font-size: 12px; }
 
   /* File upload gọn */
   .fu { min-width: 0; padding: 8px 12px; }

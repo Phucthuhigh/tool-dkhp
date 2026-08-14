@@ -20,6 +20,7 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [showGuide, setShowGuide] = useState(() => !localStorage.getItem(GUIDE_SEEN_KEY))
   const [showCodes, setShowCodes] = useState(false)
+  const [layoutDir, setLayoutDir] = useState(() => localStorage.getItem('dkhp.layout') || 'horizontal')
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('dkhp.theme.v1')
     if (saved) return saved
@@ -345,6 +346,17 @@ export default function App() {
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
+          <button
+            className="layout-btn"
+            onClick={() => {
+              const next = layoutDir === 'horizontal' ? 'vertical' : 'horizontal'
+              setLayoutDir(next)
+              localStorage.setItem('dkhp.layout', next)
+            }}
+            title={layoutDir === 'horizontal' ? 'Chuyển sang xem theo chiều dọc' : 'Chuyển sang xem theo chiều ngang'}
+          >
+            {layoutDir === 'horizontal' ? '↕ Xem dọc' : '↔ Xem ngang'}
+          </button>
           <button className="guide-btn" onClick={() => setShowGuide(true)} title="Mở hướng dẫn">
             <span>?</span> Hướng dẫn
           </button>
@@ -384,7 +396,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="main">
+          <div className={`main ${layoutDir === 'vertical' ? 'main-vertical' : ''}`}>
             {/* Trái: danh sách lớp */}
             <section className="pane pane-left">
               <ClassTable
