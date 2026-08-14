@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "chmod +x node_modules/.bin/* 2>/dev/null || true && npm run build",
   "outputDirectory": "dist",
   "env": {
     "NODE_ENV": "production"
