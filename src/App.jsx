@@ -405,7 +405,7 @@ export default function App() {
                   <span><strong>{totalTC}</strong> tín chỉ</span>
                 </div>
                 <div className="export-split" ref={exportMenuRef}>
-                  <button className="btn-primary export-main" onClick={exportImage} disabled={busy}>
+                  <button className="btn-primary export-main" onClick={copyImageToClipboard} disabled={busy}>
                     📷 Xuất ảnh TKB
                   </button>
                   <button
