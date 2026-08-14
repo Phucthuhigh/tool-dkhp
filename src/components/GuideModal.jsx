@@ -67,9 +67,25 @@ export default function GuideModal({ open, onClose }) {
         </div>
 
         <div className="gm-body">
+          {/* Tính năng */}
+          <section className="gm-section">
+            <div className="gm-sec-head"><span className="gm-sec-num">1</span><h3>Tính năng nổi bật</h3></div>
+            <div className="gm-features">
+              {FEATURES.map((f, i) => (
+                <div key={i} className="gm-feat">
+                  <span className="gm-feat-icon">{f.icon}</span>
+                  <div>
+                    <div className="gm-feat-title">{f.title}</div>
+                    <div className="gm-feat-desc">{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* Chuẩn bị file */}
           <section className="gm-section">
-            <div className="gm-sec-head"><span className="gm-sec-num">1</span><h3>Chuẩn bị file Excel</h3></div>
+            <div className="gm-sec-head"><span className="gm-sec-num">2</span><h3>Chuẩn bị file Excel</h3></div>
             <div className="gm-file-card">
               <ul className="gm-check">
                 <li>File <strong>.xlsx</strong> xuất từ trang đăng ký học phần (danh sách lớp học kỳ).</li>
@@ -85,7 +101,7 @@ export default function GuideModal({ open, onClose }) {
 
           {/* Các bước */}
           <section className="gm-section">
-            <div className="gm-sec-head"><span className="gm-sec-num">2</span><h3>Các bước sử dụng</h3></div>
+            <div className="gm-sec-head"><span className="gm-sec-num">3</span><h3>Các bước sử dụng</h3></div>
             <ol className="gm-steps">
               {STEPS.map((s, i) => (
                 <li key={i} className="gm-step">
@@ -97,22 +113,6 @@ export default function GuideModal({ open, onClose }) {
                 </li>
               ))}
             </ol>
-          </section>
-
-          {/* Tính năng */}
-          <section className="gm-section">
-            <div className="gm-sec-head"><span className="gm-sec-num">3</span><h3>Tính năng nổi bật</h3></div>
-            <div className="gm-features">
-              {FEATURES.map((f, i) => (
-                <div key={i} className="gm-feat">
-                  <span className="gm-feat-icon">{f.icon}</span>
-                  <div>
-                    <div className="gm-feat-title">{f.title}</div>
-                    <div className="gm-feat-desc">{f.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </section>
 
           {/* Chú thích màu */}
