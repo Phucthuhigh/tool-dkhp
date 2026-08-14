@@ -94,7 +94,14 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect 
             >
               ✕
             </button>
-            <div className="tt-block-code" title={b.c.maLop}>{b.c.maLop}</div>
+            <div className="tt-block-code" title={b.c.maLop}>
+              {b.c.maLop}
+              {b.c.htgd && (
+                <span className={`tt-tag tt-tag-${b.c.htgd === 'LT' ? 'lt' : 'th'}`}>
+                  {b.c.htgd}
+                </span>
+              )}
+            </div>
             <div className="tt-block-name" title={b.c.tenMH}>{b.c.tenMH}</div>
             {b.c.tenGV && <div className="tt-block-gv">{b.c.tenGV}</div>}
             <div className="tt-block-meta">
@@ -111,7 +118,7 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect 
           <div className="tt-nofixed-list">
             {noFixed.map((c) => (
               <span key={c.id} className="tt-chip" style={{ background: colorFor(c.maMH || c.maLop) }}>
-                {c.maLop} — {c.tenMH}
+                {c.maLop} {c.htgd && `[${c.htgd}]`} — {c.tenMH}
               </span>
             ))}
           </div>

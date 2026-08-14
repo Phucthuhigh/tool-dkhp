@@ -462,9 +462,15 @@ select.ct-fi { cursor: pointer; appearance: none;
 .tt-block-delete:hover { background: rgba(220, 38, 38, 0.8); }
 .tt-block-code {
   font-weight: 700; font-size: 11px; font-family: 'Consolas', monospace;
-  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
   overflow: hidden; word-break: break-all;
 }
+.tt-tag {
+  font-size: 8.5px; font-weight: 700; padding: 1px 4px; border-radius: 4px;
+  line-height: 1.1; letter-spacing: .02em; display: inline-block;
+}
+.tt-tag-lt { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.tt-tag-th { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 .tt-block-name {
   font-size: 10px; line-height: 1.2;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
