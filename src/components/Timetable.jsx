@@ -239,12 +239,13 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
         {blocks.map((b, i) => {
           const theme = colorFor(b.c.maMH || b.c.maLop)
           const courseCode = b.c.maMH || b.c.maLop
+          const dateRange = getDateRange(b.c.nhd, b.c.nk1)
           return (
             <div
               key={i}
               className="tt-block"
               onClick={() => onSelectCourse?.(courseCode)}
-              title={`${b.c.tenMH} (${b.c.maLop}) — Click để lọc môn học này`}
+              title={`${b.c.tenMH} (${b.c.maLop})${dateRange ? ` | Ngày học: ${b.c.nhd || ''} - ${b.c.nk1 || ''}` : ''} — Click để lọc môn học này`}
               style={{
                 gridColumn: dayCol(b.dayKey),
                 gridRow: `${tietRow(b.startTiet)} / ${tietRow(b.endTiet) + 1}`,
@@ -289,6 +290,11 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
                   <span className="tt-gv-icon">👤</span> {b.c.tenGV}
                 </div>
               )}
+              {dateRange && (
+                <div className="tt-block-date" title={`Ngày học: ${b.c.nhd || ''} – ${b.c.nk1 || ''}`}>
+                  <span className="tt-gv-icon">📅</span> {dateRange}
+                </div>
+              )}
               <div className="tt-block-meta">
                 {b.c.phong && b.c.phong !== '*' && (
                   <span className="tt-meta-room">
@@ -307,31 +313,66 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
 
       {noFixed.length > 0 && (
         <div className="tt-nofixed">
-          <div className="tt-nofixed-h">Lớp không có giờ cố định (ĐA/KLTN/TTTN…)</div>
+          <div className="tt-nofixed-h">Lớp không có giờ cố định (ĐA / KLTN / TTTN…)</div>
           <div className="tt-nofixed-list">
             {noFixed.map((c) => {
               const theme = colorFor(c.maMH || c.maLop)
               const courseCode = c.maMH || c.maLop
+              const dateRange = getDateRange(c.nhd, c.nk1)
               return (
-                <span
+                <div
                   key={c.id}
                   className="tt-chip"
                   onClick={() => onSelectCourse?.(courseCode)}
-                  title={`${c.tenMH} — Click để lọc môn học này`}
+                  title={`${c.tenMH} (${c.maLop})${dateRange ? ` | Ngày học: ${c.nhd || ''} - ${c.nk1 || ''}` : ''} — Click để lọc môn học này`}
                   style={{
                     '--c-bg': theme.bg,
                     '--c-border': theme.border,
                     '--c-accent': theme.accent,
                     '--c-text': theme.text,
+                    '--c-sub': theme.subtext,
+                    '--c-tag-bg': theme.tagBg,
+                    '--c-tag-border': theme.tagBorder,
+                    '--c-tag-text': theme.tagText,
                     '--c-dark-bg': theme.darkBg,
                     '--c-dark-border': theme.darkBorder,
                     '--c-dark-accent': theme.darkAccent,
                     '--c-dark-text': theme.darkText,
+                    '--c-dark-sub': theme.darkSubtext,
                   }}
                 >
-                  <span className="tt-chip-code">{c.maLop}</span>{' '}
-                  {c.htgd && <span className="tt-chip-tag">[{c.htgd}]</span>} — {c.tenMH}
-                </span>
+                  <button
+                    className="tt-block-delete"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDeselect?.(c.id)
+                    }}
+                    title="Bỏ chọn lớp này"
+                  >
+                    ✕
+                  </button>
+                  <div className="tt-block-code" title={c.maLop}>
+                    <span className="tt-code-text">{c.maLop}</span>
+                    {c.htgd && (
+                      <span className={`tt-tag tt-tag-${c.htgd === 'LT' ? 'lt' : 'th'}`}>
+                        {c.htgd}
+                      </span>
+                    )}
+                  </div>
+                  <div className="tt-block-name" title={c.tenMH}>
+                    {c.tenMH}
+                  </div>
+                  {c.tenGV && (
+                    <div className="tt-block-gv" title={c.tenGV}>
+                      <span className="tt-gv-icon">👤</span> {c.tenGV}
+                    </div>
+                  )}
+                  {dateRange && (
+                    <div className="tt-block-date" title={`Ngày học: ${c.nhd || ''} – ${c.nk1 || ''}`}>
+                      <span className="tt-gv-icon">📅</span> {dateRange}
+                    </div>
+                  )}
+                </div>
               )
             })}
           </div>
@@ -348,6 +389,36 @@ function dayCol(thu) {
 function tietRow(t) {
   // hàng 1 = header; tiết 1 -> hàng 2, ...
   return t + 1
+}
+
+function formatDateStr(val) {
+  if (!val) return ''
+  const s = String(val).trim()
+  if (!s) return ''
+  if (/^\d{5}$/.test(s)) {
+    const d = new Date(Math.round((Number(s) - 25567) * 86400 * 1000))
+    if (!isNaN(d.getTime())) {
+      const day = String(d.getDate()).padStart(2, '0')
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      return `${day}/${month}`
+    }
+  }
+  const mIso = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/)
+  if (mIso) {
+    return `${mIso[3].padStart(2, '0')}/${mIso[2].padStart(2, '0')}`
+  }
+  const mDm = s.match(/^(\d{1,2})[/.-](\d{1,2})/)
+  if (mDm) {
+    return `${mDm[1].padStart(2, '0')}/${mDm[2].padStart(2, '0')}`
+  }
+  return s
+}
+
+function getDateRange(nhd, nk1) {
+  const start = formatDateStr(nhd)
+  const end = formatDateStr(nk1)
+  if (start && end) return `${start} – ${end}`
+  return start || end || ''
 }
 
 export default Timetable

@@ -1711,6 +1711,24 @@ select.ct-fi {
   color: var(--c-dark-sub);
 }
 
+.tt-block-date {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--c-sub);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  gap: 3.5px;
+}
+
+:root[data-theme="dark"] .tt-block-date {
+  color: var(--c-dark-sub);
+}
+
 .tt-gv-icon {
   font-size: 10.5px;
   opacity: 0.85;
@@ -1763,35 +1781,51 @@ select.ct-fi {
 .tt-nofixed-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 
 .tt-chip {
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 8px;
+  position: relative;
+  min-width: 210px;
+  max-width: 280px;
+  flex: 1 1 220px;
+  padding: 10px 12px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--c-accent) 6.5%, #ffffff);
   border: 1px solid color-mix(in srgb, var(--c-accent) 18%, #cbd5e1);
-  border-top: 3px solid var(--c-accent);
+  border-top: 4px solid var(--c-accent);
   color: var(--c-text);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+  user-select: none;
 }
 
 :root[data-theme="dark"] .tt-chip {
   background: color-mix(in srgb, var(--c-dark-accent) 20%, var(--panel));
   border: 1px solid var(--c-dark-border);
-  border-top: 3px solid var(--c-dark-accent);
+  border-top: 4px solid var(--c-dark-accent);
   color: var(--c-dark-text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .tt-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.16), 0 4px 8px -2px rgba(15, 23, 42, 0.08);
+  border-color: var(--c-accent);
+}
+
+:root[data-theme="dark"] .tt-chip:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 10px var(--c-dark-accent);
+  border-color: var(--c-dark-accent);
+}
+
+.tt-chip:hover .tt-block-delete {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .tt-chip-code {
