@@ -164,6 +164,16 @@ export default function App() {
     }))
   }
 
+  function deleteClass(id) {
+    const c = byId.get(id)
+    if (!c) return
+    if (!confirm(`Xoá lớp ${c.maLop} (${c.tenMH})?`)) return
+    setClasses((prev) => prev.filter((x) => x.id !== id))
+    store.saveClasses(classes.filter((x) => x.id !== id))
+    updateActive((p) => ({ ...p, selected: p.selected.filter((x) => x !== id) }))
+    showToast(`Đã xoá lớp ${c.maLop}.`, 'success')
+  }
+
   function toggle(id) {
     const c = byId.get(id)
     if (!c) return
@@ -373,7 +383,7 @@ export default function App() {
                 </div>
               )}
               <div className="tt-scroll">
-                <Timetable ref={ttRef} classes={selectedClasses} planName={activePlan.name} />
+                <Timetable ref={ttRef} classes={selectedClasses} planName={activePlan.name} onDeleteClass={deleteClass} />
               </div>
             </section>
           </div>

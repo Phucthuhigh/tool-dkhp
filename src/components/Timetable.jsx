@@ -30,7 +30,7 @@ function contiguousRanges(tiets) {
   return ranges
 }
 
-const Timetable = forwardRef(function Timetable({ classes, planName }, ref) {
+const Timetable = forwardRef(function Timetable({ classes, planName, onDeleteClass }, ref) {
   const scheduled = classes.filter((c) => c.thu != null && c.tiets.length > 0)
   const noFixed = classes.filter((c) => c.thu == null || c.tiets.length === 0)
 
@@ -87,6 +87,13 @@ const Timetable = forwardRef(function Timetable({ classes, planName }, ref) {
               background: colorFor(b.c.maMH || b.c.maLop),
             }}
           >
+            <button
+              className="tt-block-delete"
+              onClick={() => onDeleteClass?.(b.c.id)}
+              title="Xóa lớp này"
+            >
+              ✕
+            </button>
             <div className="tt-block-code">{b.c.maLop}</div>
             <div className="tt-block-name">{b.c.tenMH}</div>
             {b.c.tenGV && <div className="tt-block-gv">{b.c.tenGV}</div>}
