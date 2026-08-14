@@ -383,7 +383,7 @@ export default function App() {
                 </div>
               )}
               <div className="tt-scroll">
-                <Timetable ref={ttRef} classes={selectedClasses} planName={activePlan.name} onDeleteClass={deleteClass} />
+                <Timetable ref={ttRef} classes={selectedClasses} planName={activePlan.name} onDeselect={toggle} />
               </div>
             </section>
           </div>

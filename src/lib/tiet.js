@@ -24,8 +24,8 @@ export const DAYS = [
   { key: 7, label: 'Thứ 7' },
 ]
 
-// Parse chuỗi tiết dạng nối "123", "678910", "12345" -> [1,2,3], [6,7,8,9,10], ...
-// Chỉ có "10" là số 2 chữ số; các tiết còn lại 1 chữ số.
+// Parse chuỗi tiết dạng nối "123", "67890", "12345" -> [1,2,3], [6,7,8,9,10], ...
+// Tiết 10 có 2 biểu diễn: "10" (2 chữ số) hoặc "0" (chữ số 0 đứng sau chữ số khác)
 export function parseTiet(raw) {
   if (raw == null) return []
   const s = String(raw).trim()
@@ -34,8 +34,13 @@ export function parseTiet(raw) {
   let i = 0
   while (i < s.length) {
     if (s[i] === '1' && s[i + 1] === '0') {
+      // "10" rõ ràng
       out.push(10)
       i += 2
+    } else if (s[i] === '0') {
+      // '0' đứng đơn lẻ hoặc sau số khác = tiết 10
+      out.push(10)
+      i += 1
     } else if (s[i] >= '1' && s[i] <= '9') {
       out.push(Number(s[i]))
       i += 1
@@ -43,7 +48,8 @@ export function parseTiet(raw) {
       i += 1 // bỏ ký tự lạ
     }
   }
-  return out
+  // Khử trùng (phòng trường hợp "10" và "0" cùng xuất hiện)
+  return [...new Set(out)].sort((a, b) => a - b)
 }
 
 // Parse thứ: "2".."7" -> số; "*" hoặc rỗng -> null (không có giờ cố định)
