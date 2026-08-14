@@ -9,8 +9,38 @@ const EMPTY_SET = new Set()
 //  - selectedIds: Set id đang chọn
 //  - blockedIds: Set id bị khóa (trùng lịch hoặc không khớp LT–TH)
 //  - blockedReason: Map id -> lý do khóa (hiển thị tooltip)
-//  - suggestIds: Set id lớp TH tương ứng với LT đã chọn (gợi ý)
-//  - onToggle(id)
+// Logic lọc tiết thông minh: hỗ trợ tìm khoảng "1-5", số đơn "3", hoặc chuỗi "1-3"
+function matchTietFilter(c, tietStr) {
+  if (!tietStr) return true
+  const s = tietStr.trim().toLowerCase()
+  if (!s) return true
+
+  // Cú pháp khoảng: vd "1-5", "1 - 5", "6-10"
+  const rangeMatch = s.match(/^(\d+)\s*-\s*(\d+)$/)
+  if (rangeMatch) {
+    if (!c.tiets || c.tiets.length === 0) return false
+    const start = parseInt(rangeMatch[1], 10)
+    const end = parseInt(rangeMatch[2], 10)
+    const minRange = Math.min(start, end)
+    const maxRange = Math.max(start, end)
+    const minTiet = Math.min(...c.tiets)
+    const maxTiet = Math.max(...c.tiets)
+    // Lớp nằm hoàn toàn trong khoảng [minRange, maxRange] (vd: 1-3, 4-5, 2-4 đều thuộc 1-5)
+    return minTiet >= minRange && maxTiet <= maxRange
+  }
+
+  // Số đơn lẻ: vd "3" -> lớp chứa tiết 3
+  if (/^\d+$/.test(s)) {
+    const target = parseInt(s, 10)
+    return c.tiets && c.tiets.includes(target)
+  }
+
+  // Khớp chuỗi thông thường
+  const label = c.tiets && c.tiets.length ? formatTiet(c.tiets).toLowerCase() : '*'
+  const raw = c.tiets ? c.tiets.join('') : ''
+  return label.includes(s) || raw.includes(s)
+}
+
 export default function ClassTable({
   classes,
   selectedIds = EMPTY_SET,
@@ -64,11 +94,7 @@ export default function ClassTable({
         if (f.thu === '*') { if (c.thu != null) return false }
         else if (String(c.thu) !== f.thu) return false
       }
-      if (tiet) {
-        const label = c.tiets.length ? formatTiet(c.tiets).toLowerCase() : '*'
-        const raw = c.tiets.join('')
-        if (!label.includes(tiet) && !raw.includes(tiet)) return false
-      }
+      if (f.tiet && !matchTietFilter(c, f.tiet)) return false
       if (phong && !(c.phong || '').toLowerCase().includes(phong)) return false
       if (f.tc && String(c.soTC) !== f.tc) return false
       if (f.hk) {
@@ -143,7 +169,7 @@ export default function ClassTable({
                   <option value="*">Không cố định</option>
                 </select>
               </th>
-              <th><input className="ct-fi" value={f.tiet} onChange={set('tiet')} placeholder="vd 1-3" /></th>
+              <th><input className="ct-fi" value={f.tiet} onChange={set('tiet')} placeholder="vd 1-5 hoặc 3" /></th>
               <th><input className="ct-fi" value={f.phong} onChange={set('phong')} placeholder="Phòng…" /></th>
               <th>
                 <select className="ct-fi" value={f.tc} onChange={set('tc')}>
