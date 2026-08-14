@@ -94,8 +94,8 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeleteCla
             >
               ✕
             </button>
-            <div className="tt-block-code" data-tooltip={b.c.maLop}>{b.c.maLop}</div>
-            <div className="tt-block-name" data-tooltip={b.c.tenMH}>{b.c.tenMH}</div>
+            <div className="tt-block-code" title={b.c.maLop}>{b.c.maLop}</div>
+            <div className="tt-block-name" title={b.c.tenMH}>{b.c.tenMH}</div>
             {b.c.tenGV && <div className="tt-block-gv">{b.c.tenGV}</div>}
             <div className="tt-block-meta">
               {b.c.phong && b.c.phong !== '*' ? `Phòng ${b.c.phong}` : ''}
