@@ -12,6 +12,11 @@ const STEPS = [
     desc: 'Bấm checkbox để đưa lớp lên lưới thời khóa biểu. Dùng bộ lọc từng cột hoặc nút LT / TH để tìm nhanh.',
   },
   {
+    icon: '⇄',
+    title: 'Nhập danh sách mã lớp nhanh',
+    desc: 'Bấm nút "⇄ Mã lớp" ở thanh phương án: dán danh sách mã lớp (phân cách bởi dấu phẩy hoặc dòng mới), tool sẽ tự động tìm và chèn thẳng các lớp đó vào TKB.',
+  },
+  {
     icon: '🧩',
     title: 'Xếp — tool tự kiểm tra giúp bạn',
     desc: 'Lớp trùng lịch bị khóa đỏ; chọn lớp Lý thuyết thì lớp Thực hành tương ứng được gợi ý xanh.',
@@ -30,7 +35,8 @@ const STEPS = [
 
 const FEATURES = [
   { icon: '📊', title: 'Đọc Excel tự động', desc: 'Gộp cả sheet LT và TH, tự dò cột.' },
-  { icon: '🔎', title: 'Lọc mọi cột', desc: 'Môn, mã lớp, GV, thứ, tiết, phòng, khóa học, học kỳ.' },
+  { icon: '🔎', title: 'Lọc mọi cột', desc: 'Môn, mã lớp, GV, thứ, tiết (khoảng 1-5 hoặc số 3), phòng, khóa học, học kỳ.' },
+  { icon: '⇄', title: 'Nhập / xuất mã lớp', desc: 'Dán danh sách mã lớp để tự động chèn nhanh vào TKB.' },
   { icon: '⛔', title: 'Chặn trùng lịch', desc: 'Không cho chọn lớp trùng thứ + tiết.' },
   { icon: '🔗', title: 'Ràng buộc LT ↔ TH', desc: 'Lớp TH phải khớp mã lớp LT đã chọn.' },
   { icon: '↕️', title: 'Xem ngang / Xem dọc', desc: 'Tùy chọn bố cục xếp 2 cột ngang hoặc cuộn dọc.' },
