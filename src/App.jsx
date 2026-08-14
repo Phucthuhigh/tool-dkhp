@@ -287,6 +287,46 @@ export default function App() {
     }
   }
 
+  async function copyImageToClipboard() {
+    if (!ttRef.current) return
+    try {
+      setBusy(true)
+      const bg = getComputedStyle(document.documentElement).getPropertyValue('--panel').trim() || '#ffffff'
+      const dataUrl = await toPng(ttRef.current, {
+        pixelRatio: 2,
+        backgroundColor: bg,
+        cacheBust: true,
+      })
+      // Chuyển dataURL -> Blob -> ClipboardItem
+      const res = await fetch(dataUrl)
+      const blob = await res.blob()
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob }),
+      ])
+      showToast('Đã sao chép ảnh TKB vào clipboard!', 'success')
+    } catch (e) {
+      console.error(e)
+      showToast('Không sao chép được. Trình duyệt có thể chưa hỗ trợ.', 'error')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const [showExportMenu, setShowExportMenu] = useState(false)
+  const exportMenuRef = useRef(null)
+
+  // Đóng menu khi click ra ngoài
+  useEffect(() => {
+    if (!showExportMenu) return
+    function handleClick(e) {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
+        setShowExportMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showExportMenu])
+
   return (
     <div className="app">
       <header className="app-header">
@@ -364,9 +404,29 @@ export default function App() {
                   <span><strong>{selectedClasses.length}</strong> lớp</span>
                   <span><strong>{totalTC}</strong> tín chỉ</span>
                 </div>
-                <button className="btn-primary" onClick={exportImage} disabled={busy}>
-                  📷 Xuất ảnh TKB
-                </button>
+                <div className="export-split" ref={exportMenuRef}>
+                  <button className="btn-primary export-main" onClick={exportImage} disabled={busy}>
+                    📷 Xuất ảnh TKB
+                  </button>
+                  <button
+                    className="btn-primary export-arrow"
+                    onClick={() => setShowExportMenu((v) => !v)}
+                    disabled={busy}
+                    title="Thêm tuỳ chọn"
+                  >
+                    ▾
+                  </button>
+                  {showExportMenu && (
+                    <div className="export-menu">
+                      <button className="export-menu-item" onClick={() => { exportImage(); setShowExportMenu(false) }}>
+                        💾 Tải về (.png)
+                      </button>
+                      <button className="export-menu-item" onClick={() => { copyImageToClipboard(); setShowExportMenu(false) }}>
+                        📋 Sao chép vào clipboard
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               {(warnings.missingTH.length > 0 || warnings.missingLT.length > 0) && (
                 <div className="warn-bar">
