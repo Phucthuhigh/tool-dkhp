@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { formatTiet } from '../lib/tiet.js'
 
 const EMPTY = {}
@@ -48,11 +48,24 @@ export default function ClassTable({
   blockedReason = EMPTY,
   suggestIds = EMPTY_SET,
   onToggle,
+  filterMH = '',
+  onFilterMHChange,
 }) {
-  const [f, setF] = useState({ mh: '', lop: '', gv: '', thu: '', tiet: '', phong: '', tc: '', hk: '', khoa: '' })
+  const [f, setF] = useState({ mh: filterMH, lop: '', gv: '', thu: '', tiet: '', phong: '', tc: '', hk: '', khoa: '' })
   const [type, setType] = useState('all') // all | LT | TH
   const [hideBlocked, setHideBlocked] = useState(false)
-  const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.value }))
+
+  useEffect(() => {
+    if (filterMH !== undefined && filterMH !== null) {
+      setF((s) => ({ ...s, mh: filterMH }))
+    }
+  }, [filterMH])
+
+  const set = (k) => (e) => {
+    const val = e.target.value
+    setF((s) => ({ ...s, [k]: val }))
+    if (k === 'mh') onFilterMHChange?.(val)
+  }
 
   const tcOptions = useMemo(() => {
     const s = new Set()
@@ -112,6 +125,7 @@ export default function ClassTable({
   function clearAll() {
     setF({ mh: '', lop: '', gv: '', thu: '', tiet: '', phong: '', tc: '', hk: '', khoa: '' })
     setType('all')
+    onFilterMHChange?.('')
   }
 
   return (
@@ -159,7 +173,7 @@ export default function ClassTable({
             </tr>
             <tr className="ct-filter-row">
               <th className="ct-cb"></th>
-              <th><input className="ct-fi" value={f.mh} onChange={set('mh')} placeholder="Tên / mã môn…" /></th>
+              <th><input id="input-filter-mh" className="ct-fi" value={f.mh} onChange={set('mh')} placeholder="Tên / mã môn…" /></th>
               <th><input className="ct-fi" value={f.lop} onChange={set('lop')} placeholder="Mã lớp…" /></th>
               <th><input className="ct-fi" value={f.gv} onChange={set('gv')} placeholder="GV / mã GV…" /></th>
               <th>

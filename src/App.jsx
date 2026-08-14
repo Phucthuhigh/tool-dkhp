@@ -51,6 +51,23 @@ export default function App() {
 
   const byCode = useMemo(() => buildIndex(classes || []), [classes])
 
+  const [filterMH, setFilterMH] = useState('')
+
+  function handleSelectCourse(code) {
+    if (!code) return
+    setFilterMH(code)
+    setTimeout(() => {
+      const el = document.getElementById('input-filter-mh')
+      if (el) {
+        el.focus()
+        const paneLeft = document.querySelector('.pane-left')
+        if (paneLeft) {
+          paneLeft.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
+      }
+    }, 50)
+  }
+
   const activePlan = plans.find((p) => p.id === activeId) || plans[0]
   const selectedIds = useMemo(() => new Set(activePlan?.selected || []), [activePlan])
 
@@ -413,6 +430,8 @@ export default function App() {
                 blockedReason={blocked}
                 suggestIds={suggestIds}
                 onToggle={toggle}
+                filterMH={filterMH}
+                onFilterMHChange={setFilterMH}
               />
             </section>
 
@@ -458,7 +477,13 @@ export default function App() {
                 </div>
               )}
               <div className="tt-scroll">
-                <Timetable ref={ttRef} classes={selectedClasses} planName={activePlan.name} onDeselect={toggle} />
+                <Timetable
+                  ref={ttRef}
+                  classes={selectedClasses}
+                  planName={activePlan.name}
+                  onDeselect={toggle}
+                  onSelectCourse={handleSelectCourse}
+                />
               </div>
             </section>
           </div>

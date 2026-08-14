@@ -178,7 +178,7 @@ function contiguousRanges(tiets) {
   return ranges
 }
 
-const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect }, ref) {
+const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect, onSelectCourse }, ref) {
   const scheduled = classes.filter((c) => c.thu != null && c.tiets.length > 0)
   const noFixed = classes.filter((c) => c.thu == null || c.tiets.length === 0)
   const totalTC = classes.reduce((s, c) => s + (Number(c.soTC) || 0), 0)
@@ -238,10 +238,13 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect 
         {/* Các block lớp học */}
         {blocks.map((b, i) => {
           const theme = colorFor(b.c.maMH || b.c.maLop)
+          const courseCode = b.c.maMH || b.c.maLop
           return (
             <div
               key={i}
               className="tt-block"
+              onClick={() => onSelectCourse?.(courseCode)}
+              title={`${b.c.tenMH} (${b.c.maLop}) — Click để lọc môn học này`}
               style={{
                 gridColumn: dayCol(b.dayKey),
                 gridRow: `${tietRow(b.startTiet)} / ${tietRow(b.endTiet) + 1}`,
@@ -308,10 +311,13 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect 
           <div className="tt-nofixed-list">
             {noFixed.map((c) => {
               const theme = colorFor(c.maMH || c.maLop)
+              const courseCode = c.maMH || c.maLop
               return (
                 <span
                   key={c.id}
                   className="tt-chip"
+                  onClick={() => onSelectCourse?.(courseCode)}
+                  title={`${c.tenMH} — Click để lọc môn học này`}
                   style={{
                     '--c-bg': theme.bg,
                     '--c-border': theme.border,
