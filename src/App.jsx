@@ -419,10 +419,6 @@ export default function App() {
             {/* Phải: thời khóa biểu */}
             <section className="pane pane-right">
               <div className="tt-toolbar">
-                <div className="tt-stats">
-                  <span><strong>{selectedClasses.length}</strong> lớp</span>
-                  <span><strong>{totalTC}</strong> tín chỉ</span>
-                </div>
                 <div className="export-split" ref={exportMenuRef}>
                   <button className="btn-primary export-main" onClick={copyImageToClipboard} disabled={busy}>
                     📷 Xuất ảnh TKB

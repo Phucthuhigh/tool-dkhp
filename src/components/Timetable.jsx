@@ -181,6 +181,7 @@ function contiguousRanges(tiets) {
 const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect }, ref) {
   const scheduled = classes.filter((c) => c.thu != null && c.tiets.length > 0)
   const noFixed = classes.filter((c) => c.thu == null || c.tiets.length === 0)
+  const totalTC = classes.reduce((s, c) => s + (Number(c.soTC) || 0), 0)
 
   // Chuẩn bị các block để đặt vào lưới
   const blocks = []
@@ -192,8 +193,18 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect 
 
   return (
     <div className="tt-wrap" ref={ref}>
-      <div className="tt-title">
-        Thời khóa biểu — <strong>{planName}</strong>
+      <div className="tt-header">
+        <div className="tt-title">
+          Thời khóa biểu — <strong>{planName}</strong>
+        </div>
+        <div className="tt-stats">
+          <span className="tt-stat-badge">
+            <strong>{classes.length}</strong> lớp
+          </span>
+          <span className="tt-stat-badge">
+            <strong>{totalTC}</strong> tín chỉ
+          </span>
+        </div>
       </div>
       <div className="tt-grid">
         {/* Góc trên trái */}

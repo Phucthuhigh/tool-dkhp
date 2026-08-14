@@ -411,9 +411,7 @@ select.ct-fi { cursor: pointer; appearance: none;
 
 /* ---------- Timetable pane ---------- */
 .pane-right { }
-.tt-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border); }
-.tt-stats { display: flex; gap: 16px; font-size: 13px; color: var(--muted); }
-.tt-stats strong { color: var(--primary); font-size: 15px; }
+.tt-toolbar { display: flex; align-items: center; justify-content: flex-end; padding: 8px 12px; border-bottom: 1px solid var(--border); }
 .btn-primary { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-weight: 600; }
 .btn-primary:hover { background: var(--primary-dark); }
 .btn-primary:disabled { opacity: .6; cursor: default; }
@@ -448,9 +446,17 @@ select.ct-fi { cursor: pointer; appearance: none;
   border: 1px solid var(--border);
   box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.05);
 }
+.tt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
 .tt-title {
   font-size: 15px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   color: var(--text);
   display: flex;
   align-items: center;
@@ -458,6 +464,28 @@ select.ct-fi { cursor: pointer; appearance: none;
 }
 .tt-title strong {
   color: var(--primary);
+  font-weight: 700;
+}
+.tt-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tt-stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--muted);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.tt-stat-badge strong {
+  color: var(--primary);
+  font-size: 14px;
   font-weight: 700;
 }
 .tt-grid {
