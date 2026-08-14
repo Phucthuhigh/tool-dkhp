@@ -339,28 +339,35 @@ export default function App() {
           </div>
         </div>
         <div className="app-header-right">
-          <button
-            className="theme-btn"
-            onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-            title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-          <button
-            className="layout-btn"
-            onClick={() => {
-              const next = layoutDir === 'horizontal' ? 'vertical' : 'horizontal'
-              setLayoutDir(next)
-              localStorage.setItem('dkhp.layout', next)
-            }}
-            title={layoutDir === 'horizontal' ? 'Chuyển sang xem theo chiều dọc' : 'Chuyển sang xem theo chiều ngang'}
-          >
-            {layoutDir === 'horizontal' ? '↕ Xem dọc' : '↔ Xem ngang'}
-          </button>
-          <button className="guide-btn" onClick={() => setShowGuide(true)} title="Mở hướng dẫn">
-            <span>?</span> Hướng dẫn
-          </button>
           <FileUpload filename={filename} onFile={handleFile} onReset={resetData} />
+
+          <div className="hdr-tools">
+            <button
+              className="hdr-btn"
+              onClick={() => {
+                const next = layoutDir === 'horizontal' ? 'vertical' : 'horizontal'
+                setLayoutDir(next)
+                localStorage.setItem('dkhp.layout', next)
+              }}
+              title={layoutDir === 'horizontal' ? 'Bố cục: Xem ngang (click để chuyển xem dọc)' : 'Bố cục: Xem dọc (click để chuyển xem ngang)'}
+            >
+              <span>{layoutDir === 'horizontal' ? '↔' : '↕'}</span>
+              <span>{layoutDir === 'horizontal' ? 'Xem ngang' : 'Xem dọc'}</span>
+            </button>
+
+            <button
+              className="hdr-btn"
+              onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+              title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+            >
+              <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+            </button>
+
+            <button className="hdr-btn" onClick={() => setShowGuide(true)} title="Hướng dẫn sử dụng">
+              <span>❓</span>
+              <span>Hướng dẫn</span>
+            </button>
+          </div>
         </div>
       </header>
 
