@@ -35,14 +35,15 @@ const STEPS = [
 
 const FEATURES = [
   { icon: '📊', title: 'Đọc Excel tự động', desc: 'Gộp cả sheet LT và TH, tự dò cột.' },
+  { icon: '🎯', title: 'Click thẻ tự lọc môn', desc: 'Ấn vào bất kỳ thẻ lớp nào trên TKB để tự động điền mã môn vào ô tìm kiếm.' },
   { icon: '🔎', title: 'Lọc mọi cột', desc: 'Môn, mã lớp, GV, thứ, tiết (khoảng 1-5 hoặc số 3), phòng, khóa học, học kỳ.' },
-  { icon: '⇄', title: 'Nhập / xuất mã lớp', desc: 'Dán danh sách mã lớp để tự động chèn nhanh vào TKB.' },
+  { icon: '⇄', title: 'Nhập / xuất & Script', desc: 'Dán danh sách mã lớp chèn nhanh vào TKB hoặc lấy script F12 đăng ký.' },
   { icon: '⛔', title: 'Chặn trùng lịch', desc: 'Không cho chọn lớp trùng thứ + tiết.' },
   { icon: '🔗', title: 'Ràng buộc LT ↔ TH', desc: 'Lớp TH phải khớp mã lớp LT đã chọn.' },
   { icon: '↕️', title: 'Xem ngang / Xem dọc', desc: 'Tùy chọn bố cục xếp 2 cột ngang hoặc cuộn dọc.' },
   { icon: '📋', title: 'Sao chép ảnh TKB', desc: 'Copy ảnh TKB trực tiếp vào clipboard để gửi nhanh.' },
   { icon: '💾', title: 'Nhiều phương án', desc: 'Lưu vào trình duyệt, so sánh dễ dàng.' },
-  { icon: '🧮', title: 'Tính tổng tín chỉ', desc: 'Cập nhật số TC theo từng phương án.' },
+  { icon: '🧮', title: 'Tính tổng tín chỉ', desc: 'Cập nhật số lớp và số tín chỉ trực tiếp trên khung TKB.' },
 ]
 
 export default function GuideModal({ open, onClose }) {
