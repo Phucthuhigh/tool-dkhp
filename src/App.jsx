@@ -333,6 +333,41 @@ export default function App() {
 
   const [showExportMenu, setShowExportMenu] = useState(false)
   const exportMenuRef = useRef(null)
+  const [draggedPlanIdx, setDraggedPlanIdx] = useState(null)
+  const [dragOverPlanIdx, setDragOverPlanIdx] = useState(null)
+
+  function handleDragStartPlan(e, index) {
+    setDraggedPlanIdx(index)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(index))
+  }
+
+  function handleDragOverPlan(e, index) {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (dragOverPlanIdx !== index) {
+      setDragOverPlanIdx(index)
+    }
+  }
+
+  function handleDropPlan(e, targetIndex) {
+    e.preventDefault()
+    if (draggedPlanIdx !== null && draggedPlanIdx !== targetIndex) {
+      setPlanState((s) => {
+        const next = [...s.plans]
+        const [moved] = next.splice(draggedPlanIdx, 1)
+        next.splice(targetIndex, 0, moved)
+        return { ...s, plans: next }
+      })
+    }
+    setDraggedPlanIdx(null)
+    setDragOverPlanIdx(null)
+  }
+
+  function handleDragEndPlan() {
+    setDraggedPlanIdx(null)
+    setDragOverPlanIdx(null)
+  }
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
@@ -400,16 +435,30 @@ export default function App() {
           {/* Thanh phương án */}
           <div className="plan-bar">
             <div className="plan-tabs">
-              {plans.map((p) => (
-                <button
-                  key={p.id}
-                  className={`plan-tab ${p.id === activeId ? 'active' : ''}`}
-                  onClick={() => setPlanState((s) => ({ ...s, activeId: p.id }))}
-                >
-                  {p.name}
-                  <span className="plan-badge">{p.selected.length}</span>
-                </button>
-              ))}
+              {plans.map((p, index) => {
+                const isActive = p.id === activeId
+                const isDragging = draggedPlanIdx === index
+                const isDragOver = dragOverPlanIdx === index && draggedPlanIdx !== null && draggedPlanIdx !== index
+                const dragDir = isDragOver ? (draggedPlanIdx < index ? 'right' : 'left') : ''
+
+                return (
+                  <button
+                    key={p.id}
+                    draggable
+                    onDragStart={(e) => handleDragStartPlan(e, index)}
+                    onDragOver={(e) => handleDragOverPlan(e, index)}
+                    onDrop={(e) => handleDropPlan(e, index)}
+                    onDragEnd={handleDragEndPlan}
+                    className={`plan-tab ${isActive ? 'active' : ''} ${isDragging ? 'dragging' : ''} ${isDragOver ? `drag-over drag-over-${dragDir}` : ''}`}
+                    onClick={() => setPlanState((s) => ({ ...s, activeId: p.id }))}
+                    title="Kéo thả để sắp xếp thứ tự phương án"
+                  >
+                    <span className="plan-drag-handle">⋮⋮</span>
+                    {p.name}
+                    <span className="plan-badge">{p.selected.length}</span>
+                  </button>
+                )
+              })}
               <button className="plan-add" onClick={addPlan} title="Thêm phương án">＋</button>
             </div>
             <div className="plan-actions">

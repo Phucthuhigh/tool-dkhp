@@ -722,6 +722,81 @@ body {
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
+  user-select: none;
+  position: relative;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              margin 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s ease,
+              box-shadow 0.2s ease,
+              border-color 0.2s ease;
+}
+
+.plan-tab[draggable="true"] {
+  cursor: grab;
+}
+
+.plan-tab[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.plan-drag-handle {
+  font-size: 11px;
+  opacity: 0.4;
+  margin-right: 2px;
+  cursor: grab;
+  user-select: none;
+  display: inline-block;
+  transition: opacity 0.15s ease;
+}
+
+.plan-tab:hover .plan-drag-handle {
+  opacity: 0.8;
+}
+
+.plan-tab.dragging {
+  opacity: 0.35;
+  transform: scale(0.95);
+  border-style: dashed !important;
+}
+
+/* Hiệu ứng tách khoảng trống (gap) và vạch đứng xanh khi chuẩn bị thả */
+.plan-tab.drag-over-left {
+  margin-left: 28px !important;
+}
+
+.plan-tab.drag-over-left::before {
+  content: '';
+  position: absolute;
+  left: -17px;
+  top: 10%;
+  bottom: 10%;
+  width: 3.5px;
+  border-radius: 4px;
+  background: var(--primary);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+  animation: drop-pulse 0.6s ease-in-out infinite alternate;
+}
+
+.plan-tab.drag-over-right {
+  margin-right: 28px !important;
+}
+
+.plan-tab.drag-over-right::after {
+  content: '';
+  position: absolute;
+  right: -17px;
+  top: 10%;
+  bottom: 10%;
+  width: 3.5px;
+  border-radius: 4px;
+  background: var(--primary);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+  animation: drop-pulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes drop-pulse {
+  from { opacity: 0.6; transform: scaleY(0.85); }
+  to { opacity: 1; transform: scaleY(1.08); }
 }
 
 .plan-tab.active {
