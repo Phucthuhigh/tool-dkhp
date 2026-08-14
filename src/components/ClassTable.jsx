@@ -153,7 +153,7 @@ export default function ClassTable({
               <th className="col-thu">Thứ</th>
               <th className="col-tiet">Tiết</th>
               <th className="col-phong">Phòng</th>
-              <th className="col-tc">TC</th>
+              <th className="col-tc">Tín chỉ</th>
               <th className="col-khoa">Khóa học</th>
               <th className="col-hk">HK / Năm</th>
             </tr>
