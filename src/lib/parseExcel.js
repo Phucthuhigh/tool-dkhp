@@ -17,14 +17,30 @@ const HEADER_MAP = {
   'TÊN GIẢNG VIÊN': 'tenGV',
   'TÊN TRỢ GIẢNG': 'tenGV',
   'SĨ SỐ': 'siSo',
+  'SỈ SỐ': 'siSo',      // biến thể i ngắn
   'SỐ TC': 'soTC',
+  'TỐ TC': 'soTC',      // tên cột mới
   'THỰC HÀNH': 'thucHanh',
   'HTGD': 'htgd',
   'THỨ': 'thu',
   'TIẾT': 'tiet',
   'CÁCH TUẦN': 'cachTuan',
   'PHÒNG HỌC': 'phong',
-  'KHÓA HỌC': 'khoa',
+  'KHOÁ HỌC': 'khoa',   // Á — đúng tên cột thực tế
+  'KHÓA HỌC': 'khoa',   // biến thể Á (cũ)
+  'KHOA HỌC': 'khoa',   // biến thể không dấu
+  'HỌC KỲ': 'hocKy',
+  'NĂM HỌC': 'namHoc',
+  'HỆ ĐT': 'heDT',
+  'KHOA QL': 'khoaQL',
+  'NHD': 'nhd',
+  'NBD': 'nhd',      // tên thực tế trong file
+  'NK1': 'nk1',
+  'NKT': 'nk1',      // tên thực tế trong file
+  'GHICHU': 'ghiChu',
+  'GHI CHÚ': 'ghiChu',
+  'NGON NGU': 'ngonNgu',  // không dấu — tên thực tế
+  'NGÔN NGỮ': 'ngonNgu',
 }
 
 function findHeaderRow(rows) {
@@ -68,6 +84,7 @@ function parseSheet(ws) {
       maLop: String(maLop).trim(),
       maMH: String(get('maMH') ?? '').trim(),
       tenMH: String(get('tenMH') ?? '').trim(),
+      maGV: String(get('maGV') ?? '').trim(),
       tenGV: String(get('tenGV') ?? '').trim(),
       soTC,
       htgd: String(get('htgd') ?? '').trim(),
@@ -75,6 +92,15 @@ function parseSheet(ws) {
       tiets, // mảng số tiết, [] nếu không có giờ
       phong: String(get('phong') ?? '').trim(),
       siSo: get('siSo') == null ? '' : String(Number(get('siSo')) || get('siSo')),
+      khoa: String(get('khoa') ?? '').trim(),
+      hocKy: String(get('hocKy') ?? '').trim(),
+      namHoc: String(get('namHoc') ?? '').trim(),
+      heDT: String(get('heDT') ?? '').trim(),
+      khoaQL: String(get('khoaQL') ?? '').trim(),
+      nhd: String(get('nhd') ?? '').trim(),
+      nk1: String(get('nk1') ?? '').trim(),
+      ghiChu: String(get('ghiChu') ?? '').trim(),
+      ngonNgu: String(get('ngonNgu') ?? '').trim(),
     })
   }
   return out

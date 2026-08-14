@@ -349,7 +349,7 @@ body {
 .ct-clear:hover { color: var(--danger); border-color: var(--danger); }
 
 .ct-scroll { overflow: auto; flex: 1; }
-.ct-table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 12.5px; }
+.ct-table { width: 100%; min-width: 1250px; border-collapse: collapse; font-size: 12.5px; }
 .ct-table thead th {
   position: sticky; top: 0; background: var(--surface-2); z-index: 3; text-align: left;
   padding: 8px 8px; border-bottom: 1px solid var(--border); font-size: 11px;
@@ -373,11 +373,13 @@ select.ct-fi { cursor: pointer; appearance: none;
 /* Cột — cho phép cuộn ngang, không bóp méo */
 .col-mh { min-width: 210px; }
 .col-lop { min-width: 130px; }
-.col-gv { min-width: 130px; }
+.col-gv { min-width: 140px; }
 .col-thu { min-width: 96px; }
 .col-tiet { min-width: 100px; }
 .col-phong { min-width: 118px; }
-.col-tc { min-width: 84px; }
+.col-tc { min-width: 60px; }
+.col-khoa { min-width: 110px; }
+.col-hk { min-width: 130px; }
 
 .ct-table tbody td { padding: 6px 8px; border-bottom: 1px solid var(--border-soft); vertical-align: middle; }
 .ct-table tbody tr { cursor: pointer; }
