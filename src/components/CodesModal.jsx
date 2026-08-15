@@ -157,8 +157,8 @@ function DangKy(monDangKyString) {
               Mở trang Đăng ký học phần ➔ Nhấn <strong>F12</strong> (Console) ➔ Dán đoạn script bên dưới và nhấn <strong>Enter</strong> để tự động tích chọn checkbox các môn đã chọn.
             </div>
             {/*<div className="cm-code-wrap">
-              <HighlightedScript codes={exportText} />*/}
-            </div>
+              <HighlightedScript codes={exportText} />
+            </div>*/}
           </div>
         </div>
       </div>
