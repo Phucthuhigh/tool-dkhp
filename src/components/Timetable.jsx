@@ -5,7 +5,7 @@ import { DAYS, TIET_LIST, TIET_TIME, formatTiet } from '../lib/tiet.js'
 const PALETTE = [
   // 1. Warm Peach / Cream Orange
   {
-    bg: '#ffe8c5',
+    bg: 'linear-gradient(135deg, #fff3e0 0%, #ffe8c5 100%)',
     border: '#fca556',
     accent: '#ea580c',
     text: '#1f2937',
@@ -21,7 +21,7 @@ const PALETTE = [
   },
   // 2. Soft Periwinkle / Indigo Blue
   {
-    bg: '#c7d2fe',
+    bg: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
     border: '#818cf8',
     accent: '#3730a3',
     text: '#1e1b4b',
@@ -37,7 +37,7 @@ const PALETTE = [
   },
   // 3. Soft Lavender / Purple
   {
-    bg: '#e9d5ff',
+    bg: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
     border: '#c084fc',
     accent: '#6d28d9',
     text: '#3b0764',
@@ -53,7 +53,7 @@ const PALETTE = [
   },
   // 4. Soft Blush Pink / Rose
   {
-    bg: '#fecdd3',
+    bg: 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)',
     border: '#f87171',
     accent: '#be123c',
     text: '#4c0519',
@@ -69,7 +69,7 @@ const PALETTE = [
   },
   // 5. Soft Lime Green
   {
-    bg: '#d9f99d',
+    bg: 'linear-gradient(135deg, #f7fee7 0%, #d9f99d 100%)',
     border: '#a3e635',
     accent: '#4d7c0f',
     text: '#1a2e05',
@@ -85,7 +85,7 @@ const PALETTE = [
   },
   // 6. Vibrant Sky Blue
   {
-    bg: '#bae6fd',
+    bg: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
     border: '#38bdf8',
     accent: '#0369a1',
     text: '#0c4a6e',
@@ -101,7 +101,7 @@ const PALETTE = [
   },
   // 7. Fresh Mint / Emerald
   {
-    bg: '#a7f3d0',
+    bg: 'linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 100%)',
     border: '#34d399',
     accent: '#047857',
     text: '#064e3b',
@@ -117,7 +117,7 @@ const PALETTE = [
   },
   // 8. Bright Amber Yellow
   {
-    bg: '#fde68a',
+    bg: 'linear-gradient(135deg, #fffbeb 0%, #fde68a 100%)',
     border: '#fbbf24',
     accent: '#b45309',
     text: '#451a03',
@@ -133,7 +133,7 @@ const PALETTE = [
   },
   // 9. Coral Crimson
   {
-    bg: '#fca5a5',
+    bg: 'linear-gradient(135deg, #fef2f2 0%, #fca5a5 100%)',
     border: '#f87171',
     accent: '#b91c1c',
     text: '#450a0a',
@@ -149,7 +149,7 @@ const PALETTE = [
   },
   // 10. Fuchsia Magenta
   {
-    bg: '#f5d0fe',
+    bg: 'linear-gradient(135deg, #fdf4ff 0%, #f5d0fe 100%)',
     border: '#e879f9',
     accent: '#a21caf',
     text: '#4a044e',
@@ -165,7 +165,7 @@ const PALETTE = [
   },
   // 11. Bright Hot Pink
   {
-    bg: '#fbcfe8',
+    bg: 'linear-gradient(135deg, #fdf2f8 0%, #fbcfe8 100%)',
     border: '#f472b6',
     accent: '#be185d',
     text: '#500724',
@@ -181,7 +181,7 @@ const PALETTE = [
   },
   // 12. Fresh Teal Turquoise
   {
-    bg: '#99f6e4',
+    bg: 'linear-gradient(135deg, #f0fdfa 0%, #99f6e4 100%)',
     border: '#2dd4bf',
     accent: '#0f766e',
     text: '#042f2e',
@@ -197,7 +197,7 @@ const PALETTE = [
   },
   // 13. Vivid Orange
   {
-    bg: '#fed7aa',
+    bg: 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)',
     border: '#fb923c',
     accent: '#c2410c',
     text: '#431407',
@@ -213,7 +213,7 @@ const PALETTE = [
   },
   // 14. Chartreuse Lemon
   {
-    bg: '#fef08a',
+    bg: 'linear-gradient(135deg, #fefce8 0%, #fef08a 100%)',
     border: '#facc15',
     accent: '#a16207',
     text: '#422006',
@@ -229,7 +229,7 @@ const PALETTE = [
   },
   // 15. Deep Royal Blue
   {
-    bg: '#bfdbfe',
+    bg: 'linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%)',
     border: '#60a5fa',
     accent: '#1d4ed8',
     text: '#1e3a8a',
@@ -245,7 +245,7 @@ const PALETTE = [
   },
   // 16. Soft Slate Mauve
   {
-    bg: '#cbd5e1',
+    bg: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)',
     border: '#94a3b8',
     accent: '#334155',
     text: '#0f172a',
