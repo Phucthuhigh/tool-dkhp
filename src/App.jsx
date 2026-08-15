@@ -387,8 +387,8 @@ export default function App() {
         <div className="app-title">
           <span className="app-logo"><img src="/logo.png" alt="Logo" /></span>
           <div>
-            <h1>Tool Đăng Ký Học Phần UIT</h1>
-            <p>Xếp thời khóa biểu</p>
+            <h1>Xếp Thời Khóa Biểu UIT</h1>
+            <p>Sắp xếp & so sánh phương án TKB</p>
           </div>
         </div>
         <div className="app-header-right">

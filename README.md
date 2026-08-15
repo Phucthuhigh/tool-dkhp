@@ -1,6 +1,6 @@
-# Tool Đăng Ký Học Phần UIT
+# Xếp Thời Khóa Biểu UIT
 
-Công cụ xếp thời khóa biểu / đăng ký học phần cho sinh viên UIT. Chạy hoàn toàn phía trình duyệt (không gửi dữ liệu đi đâu), tất cả lưu ở `localStorage`.
+Công cụ xếp thời khóa biểu cho sinh viên UIT. Chạy hoàn toàn phía trình duyệt (không gửi dữ liệu đi đâu), tất cả lưu ở `localStorage`.
 
 ## Tính năng
 

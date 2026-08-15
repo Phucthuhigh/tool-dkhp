@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Tool xếp thời khóa biểu / đăng ký học phần UIT",
+  "description": "Xếp thời khóa biểu UIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
