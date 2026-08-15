@@ -1,75 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-
-function HighlightedScript({ codes }) {
-  const formattedCodes = codes || ''
-
-  return (
-    <pre className="cm-code">
-      <span className="cm-c-kw">var</span> monDangKy = <span className="cm-c-str">"{formattedCodes}"</span>;{'\n\n'}
-      <span className="cm-c-kw">var</span> successLog = (message) =&gt; console.log(<span className="cm-c-str">'%c'</span> + message, <span className="cm-c-str">'font-weight:bold; color:green;'</span>);{'\n'}
-      <span className="cm-c-kw">var</span> errorLog = (message) =&gt; console.log(<span className="cm-c-str">'%c'</span> + message, <span className="cm-c-str">'font-weight:bold; color:red;'</span>);{'\n\n'}
-      <span className="cm-c-fn">DangKy</span>(monDangKy);{'\n\n'}
-      <span className="cm-c-kw">function</span> <span className="cm-c-fn">DangKy</span>(monDangKyString) {'{'}{'\n'}
-      {'  '}<span className="cm-c-kw">try</span> {'{'}{'\n'}
-      {'    '}<span className="cm-c-kw">var</span> listMonDangKy = monDangKyString.split(<span className="cm-c-str">','</span>).map((it) =&gt; it.trim()).filter(Boolean);{'\n'}
-      {'    '}<span className="cm-c-kw">var</span> allRows = [...document.querySelectorAll(<span className="cm-c-str">'form table tr'</span>)];{'\n'}
-      {'    '}<span className="cm-c-kw">var</span> rowsToDangKy = allRows.filter((it) =&gt; listMonDangKy.includes(it.querySelector(<span className="cm-c-str">'td:nth-child(2)'</span>)?.textContent?.trim()));{'\n'}
-      {'    '}rowsToDangKy.forEach((it, index) =&gt; {'{'}{'\n'}
-      {'      '}it.querySelector(<span className="cm-c-str">'td:first-child input[type="checkbox"]'</span>)?.click();{'\n'}
-      {'      '}<span className="cm-c-kw">var</span> tenLop = it.querySelector(<span className="cm-c-str">'td:nth-child(2)'</span>)?.textContent?.trim();{'\n'}
-      {'      '}successLog(index + 1 + <span className="cm-c-str">'.Đã chọn lớp '</span> + tenLop);{'\n'}
-      {'    '}{'}'});{'\n'}
-      {'  '}{'}'} <span className="cm-c-kw">catch</span> {'{'}{'\n'}
-      {'    '}errorLog(<span className="cm-c-str">'Chọn lớp không thành công! Bạn tự chọn lớp đi nhé!'</span>);{'\n'}
-      {'  '}{'}'}{'\n'}
-      {'}'}
-    </pre>
-  )
-}
+import React, { useEffect, useRef, useState } from 'react'
 
 export default function CodesModal({ open, onClose, exportText, planName, onImport }) {
   const [text, setText] = useState('')
   const [copied, setCopied] = useState(false)
-  const [scriptCopied, setScriptCopied] = useState(false)
   const taRef = useRef(null)
 
   useEffect(() => {
     if (!open) return
     setText('')
     setCopied(false)
-    setScriptCopied(false)
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
-
-  const generatedScript = useMemo(() => {
-    const formattedCodes = exportText || ''
-    return `// Copy đoạn script này dán vào F12 Console ở trang đăng ký học phần
-// Lưu ý: Nếu sau này trường update website, các thẻ query không còn đúng nữa, thì bạn liên hệ messenger.com/t/loia5tqd001 để báo mình nhé
-
-var monDangKy = "${formattedCodes}";
-
-var successLog = (message) => console.log('%c' + message, 'font-weight:bold; color:green;');
-var errorLog = (message) => console.log('%c' + message, 'font-weight:bold; color:red;');
-
-DangKy(monDangKy);
-
-function DangKy(monDangKyString) {
-  try {
-    var listMonDangKy = monDangKyString.split(',').map((it) => it.trim()).filter(Boolean);
-    var allRows = [...document.querySelectorAll('form table tr')];
-    var rowsToDangKy = allRows.filter((it) => listMonDangKy.includes(it.querySelector('td:nth-child(2)')?.textContent?.trim()));
-    rowsToDangKy.forEach((it, index) => {
-      it.querySelector('td:first-child input[type="checkbox"]')?.click();
-      var tenLop = it.querySelector('td:nth-child(2)')?.textContent?.trim();
-      successLog(index + 1 + '.Đã chọn lớp ' + tenLop);
-    });
-  } catch {
-    errorLog('Chọn lớp không thành công! Bạn tự chọn lớp đi nhé!');
-  }
-}`
-  }, [exportText])
 
   if (!open) return null
 
@@ -84,21 +27,11 @@ function DangKy(monDangKyString) {
     setTimeout(() => setCopied(false), 1600)
   }
 
-  async function copyScript() {
-    try {
-      await navigator.clipboard.writeText(generatedScript)
-    } catch {
-      // fallback
-    }
-    setScriptCopied(true)
-    setTimeout(() => setScriptCopied(false), 1600)
-  }
-
   return (
     <div className="gm-overlay" onClick={onClose}>
       <div className="cm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="cm-head">
-          <h3>⇄ Nhập / Xuất mã lớp & Script Đăng ký</h3>
+          <h3>⇄ Nhập / Xuất danh sách mã lớp</h3>
           <button className="gm-close cm-close" onClick={onClose} aria-label="Đóng">✕</button>
         </div>
 
@@ -143,22 +76,6 @@ function DangKy(monDangKyString) {
               placeholder="Chưa chọn lớp nào trong phương án này."
               onFocus={(e) => e.target.select()}
             />
-          </div>
-
-          {/* Script đăng ký nhanh */}
-          <div className="cm-block">
-            <div className="cm-block-head">
-              <span className="cm-label">⚡ Script đăng ký nhanh (Console F12)</span>
-              <button className="cm-btn cm-btn-script" onClick={copyScript} disabled={!exportText}>
-                {scriptCopied ? '✓ Đã sao chép script' : '📋 Sao chép script'}
-              </button>
-            </div>
-            <div className="cm-hint">
-              Mở trang Đăng ký học phần ➔ Nhấn <strong>F12</strong> (Console) ➔ Dán đoạn script bên dưới và nhấn <strong>Enter</strong> để tự động tích chọn checkbox các môn đã chọn.
-            </div>
-            {/*<div className="cm-code-wrap">
-              <HighlightedScript codes={exportText} />
-            </div>*/}
           </div>
         </div>
       </div>

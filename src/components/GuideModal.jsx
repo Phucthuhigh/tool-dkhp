@@ -37,7 +37,7 @@ const FEATURES = [
   { icon: '📊', title: 'Đọc Excel tự động', desc: 'Gộp cả sheet LT và TH, tự dò cột.' },
   { icon: '🎯', title: 'Click thẻ tự lọc môn', desc: 'Ấn vào bất kỳ thẻ lớp nào trên TKB để tự động điền mã môn vào ô tìm kiếm.' },
   { icon: '🔎', title: 'Lọc mọi cột', desc: 'Môn, mã lớp, GV, thứ, tiết (khoảng 1-5 hoặc số 3), phòng, khóa học, học kỳ.' },
-  { icon: '⇄', title: 'Nhập / xuất & Script', desc: 'Dán danh sách mã lớp chèn nhanh vào TKB hoặc lấy script F12 đăng ký.' },
+  { icon: '⇄', title: 'Nhập / xuất mã lớp', desc: 'Dán danh sách mã lớp để nạp nhanh vào TKB hoặc sao chép mã lớp phương án.' },
   { icon: '⛔', title: 'Chặn trùng lịch', desc: 'Không cho chọn lớp trùng thứ + tiết.' },
   { icon: '🔗', title: 'Ràng buộc LT ↔ TH', desc: 'Lớp TH phải khớp mã lớp LT đã chọn.' },
   { icon: '↕️', title: 'Xem ngang / Xem dọc', desc: 'Tùy chọn bố cục xếp 2 cột ngang hoặc cuộn dọc.' },
