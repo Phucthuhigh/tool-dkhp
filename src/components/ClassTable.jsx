@@ -41,6 +41,52 @@ function matchTietFilter(c, tietStr) {
   return label.includes(s) || raw.includes(s)
 }
 
+// Mỗi dòng bảng được memo hoá riêng: props chỉ gồm giá trị nguyên thuỷ (checked/blocked/
+// suggest/blockedReasonText) + object lớp `c` vốn không đổi identity giữa các lần chọn/bỏ
+// chọn lớp khác. Nhờ vậy khi bấm chọn 1 lớp, React chỉ render lại đúng những dòng có trạng
+// thái thực sự đổi (thường chỉ vài dòng trùng lịch/cùng môn), bỏ qua hàng nghìn dòng còn lại
+// — thay vì phải dựng lại + so khớp toàn bộ bảng mỗi lần click như trước.
+const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, blockedReasonText }) {
+  const cls = checked ? 'ct-selected' : blocked ? 'ct-blocked' : suggest ? 'ct-suggest' : ''
+  const hkLabel = [c.hocKy, c.namHoc].filter(Boolean).join(' / ')
+  const extraInfo = [
+    c.heDT && `Hệ: ${c.heDT}`,
+    c.khoaQL && `Khoa QL: ${c.khoaQL}`,
+    c.ngonNgu && `Ngôn ngữ: ${c.ngonNgu}`,
+    c.ghiChu && `Ghi chú: ${c.ghiChu}`,
+  ].filter(Boolean).join(' | ')
+  const tooltip = blocked ? blockedReasonText : (extraInfo || undefined)
+
+  return (
+    <tr data-id={c.id} data-blocked={blocked ? '1' : '0'} className={cls} title={tooltip}>
+      <td className="ct-cb">
+        <input type="checkbox" checked={checked} disabled={blocked} readOnly />
+      </td>
+      <td className="col-mh">
+        <div className="ct-mh">
+          {c.tenMH}
+          {suggest && <span className="ct-tag-th">TH tương ứng</span>}
+        </div>
+        <div className="ct-mamh">
+          {c.maMH}
+          {c.htgd && <span className={`ct-htgd ct-htgd-${c.htgd === 'LT' ? 'lt' : 'th'}`}>{c.htgd}</span>}
+        </div>
+      </td>
+      <td className="col-lop ct-mono">{c.maLop}</td>
+      <td className="col-gv">
+        {c.tenGV || <span className="ct-muted">—</span>}
+        {c.maGV && <div className="ct-mamh">{c.maGV}</div>}
+      </td>
+      <td className="col-thu ct-num">{c.thu ?? <span className="ct-muted">*</span>}</td>
+      <td className="col-tiet ct-num">{c.tiets.length ? formatTiet(c.tiets) : <span className="ct-muted">*</span>}</td>
+      <td className="col-phong ct-mono">{c.phong && c.phong !== '*' ? c.phong : <span className="ct-muted">—</span>}</td>
+      <td className="col-tc ct-num">{c.soTC || ''}</td>
+      <td className="col-khoa ct-mono">{c.khoa || <span className="ct-muted">—</span>}</td>
+      <td className="col-hk ct-mono">{hkLabel || <span className="ct-muted">—</span>}</td>
+    </tr>
+  )
+})
+
 export default function ClassTable({
   classes,
   selectedIds = EMPTY_SET,
@@ -52,6 +98,14 @@ export default function ClassTable({
   onFilterMHChange,
 }) {
   const [f, setF] = useState({ mh: filterMH, lop: '', gv: '', thu: '', tiet: '', phong: '', tc: '', hk: '', khoa: '' })
+
+  // Bắt sự kiện click theo kiểu delegation (1 handler ở <tbody> thay vì mỗi dòng 1 callback)
+  // — để các dòng có thể memo hoá độc lập mà không phụ thuộc identity của onToggle.
+  function handleBodyClick(e) {
+    const tr = e.target.closest('tr[data-id]')
+    if (!tr || tr.dataset.blocked === '1') return
+    onToggle(tr.dataset.id)
+  }
   const [type, setType] = useState('all') // all | LT | TH
   const [hideBlocked, setHideBlocked] = useState(false)
 
@@ -90,14 +144,16 @@ export default function ClassTable({
     return [...s].sort()
   }, [classes])
 
-  const filtered = useMemo(() => {
+  // Tách riêng phần lọc theo bộ lọc/loại (KHÔNG phụ thuộc blockedIds) khỏi phần lọc theo
+  // hideBlocked — vì blockedIds đổi identity mỗi lần chọn/bỏ chọn 1 lớp bất kỳ. Nếu gộp
+  // chung 1 mảng phụ thuộc như cũ, mỗi lần bấm chọn lớp sẽ buộc quét lại TOÀN BỘ danh sách
+  // (có thể hàng nghìn dòng) dù người dùng không bật "Ẩn lớp không hợp lệ".
+  const baseFiltered = useMemo(() => {
     const mh = f.mh.trim().toLowerCase()
     const lop = f.lop.trim().toLowerCase()
     const gv = f.gv.trim().toLowerCase()
-    const tiet = f.tiet.trim().toLowerCase()
     const phong = f.phong.trim().toLowerCase()
     return classes.filter((c) => {
-      if (hideBlocked && blockedIds.has(c.id)) return false
       if (type === 'LT' && c.htgd !== 'LT') return false
       if (type === 'TH' && !(c.htgd === 'HT1' || c.htgd === 'HT2')) return false
       if (mh && !(`${c.maMH} ${c.tenMH}`.toLowerCase().includes(mh))) return false
@@ -117,7 +173,12 @@ export default function ClassTable({
       if (f.khoa && c.khoa !== f.khoa) return false
       return true
     })
-  }, [classes, f, type, hideBlocked, blockedIds])
+  }, [classes, f, type])
+
+  const filtered = useMemo(() => {
+    if (!hideBlocked) return baseFiltered
+    return baseFiltered.filter((c) => !blockedIds.has(c.id))
+  }, [baseFiltered, hideBlocked, blockedIds])
 
   const active =
     type !== 'all' || Object.values(f).some((v) => v !== '')
@@ -205,61 +266,20 @@ export default function ClassTable({
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody onClick={handleBodyClick}>
             {filtered.map((c) => {
               const checked = selectedIds.has(c.id)
               const blocked = !checked && blockedIds.has(c.id)
               const suggest = !checked && !blocked && suggestIds.has(c.id)
-              const cls = checked ? 'ct-selected' : blocked ? 'ct-blocked' : suggest ? 'ct-suggest' : ''
-              const hkLabel = [c.hocKy, c.namHoc].filter(Boolean).join(' / ')
-              // Tooltip bổ sung thông tin từ các cột mới
-              const extraInfo = [
-                c.heDT && `Hệ: ${c.heDT}`,
-                c.khoaQL && `Khoa QL: ${c.khoaQL}`,
-                c.ngonNgu && `Ngôn ngữ: ${c.ngonNgu}`,
-                c.ghiChu && `Ghi chú: ${c.ghiChu}`,
-              ].filter(Boolean).join(' | ')
-              const tooltip = blocked
-                ? blockedReason.get(c.id)
-                : extraInfo || undefined
               return (
-                <tr
+                <ClassRow
                   key={c.id}
-                  className={cls}
-                  title={tooltip}
-                  onClick={() => { if (!blocked) onToggle(c.id) }}
-                >
-                  <td className="ct-cb">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      disabled={blocked}
-                      onChange={() => onToggle(c.id)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </td>
-                  <td className="col-mh">
-                    <div className="ct-mh">
-                      {c.tenMH}
-                      {suggest && <span className="ct-tag-th">TH tương ứng</span>}
-                    </div>
-                    <div className="ct-mamh">
-                      {c.maMH}
-                      {c.htgd && <span className={`ct-htgd ct-htgd-${c.htgd === 'LT' ? 'lt' : 'th'}`}>{c.htgd}</span>}
-                    </div>
-                  </td>
-                  <td className="col-lop ct-mono">{c.maLop}</td>
-                  <td className="col-gv">
-                    {c.tenGV || <span className="ct-muted">—</span>}
-                    {c.maGV && <div className="ct-mamh">{c.maGV}</div>}
-                  </td>
-                  <td className="col-thu ct-num">{c.thu ?? <span className="ct-muted">*</span>}</td>
-                  <td className="col-tiet ct-num">{c.tiets.length ? formatTiet(c.tiets) : <span className="ct-muted">*</span>}</td>
-                  <td className="col-phong ct-mono">{c.phong && c.phong !== '*' ? c.phong : <span className="ct-muted">—</span>}</td>
-                  <td className="col-tc ct-num">{c.soTC || ''}</td>
-                  <td className="col-khoa ct-mono">{c.khoa || <span className="ct-muted">—</span>}</td>
-                  <td className="col-hk ct-mono">{hkLabel || <span className="ct-muted">—</span>}</td>
-                </tr>
+                  c={c}
+                  checked={checked}
+                  blocked={blocked}
+                  suggest={suggest}
+                  blockedReasonText={blocked ? blockedReason.get(c.id) : undefined}
+                />
               )
             })}
             {filtered.length === 0 && (

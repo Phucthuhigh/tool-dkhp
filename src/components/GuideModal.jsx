@@ -40,7 +40,6 @@ const FEATURES = [
   { icon: '⇄', title: 'Nhập / xuất mã lớp', desc: 'Dán danh sách mã lớp để nạp nhanh vào TKB hoặc sao chép mã lớp phương án.' },
   { icon: '⛔', title: 'Chặn trùng lịch', desc: 'Không cho chọn lớp trùng thứ + tiết.' },
   { icon: '🔗', title: 'Ràng buộc LT ↔ TH', desc: 'Lớp TH phải khớp mã lớp LT đã chọn.' },
-  { icon: '↕️', title: 'Xem ngang / Xem dọc', desc: 'Tùy chọn bố cục xếp 2 cột ngang hoặc cuộn dọc.' },
   { icon: '📋', title: 'Sao chép ảnh TKB', desc: 'Copy ảnh TKB trực tiếp vào clipboard để gửi nhanh.' },
   { icon: '💾', title: 'Nhiều phương án', desc: 'Lưu vào trình duyệt, so sánh dễ dàng.' },
   { icon: '🧮', title: 'Tính tổng tín chỉ', desc: 'Cập nhật số lớp và số tín chỉ trực tiếp trên khung TKB.' },

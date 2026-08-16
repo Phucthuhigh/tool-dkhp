@@ -1040,35 +1040,206 @@ body {
 
 /* ---------- Main layout ---------- */
 .main {
+  --split-a: 44.4fr;
+  --split-b: 55.6fr;
+  position: relative;
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(420px, 1fr) minmax(560px, 1.25fr);
-  gap: 12px;
+  grid-template-columns: minmax(160px, var(--split-a)) 14px minmax(160px, var(--split-b));
+  gap: 0 12px;
   padding: 12px;
   overflow: hidden;
 }
 
-.main.main-vertical {
-  grid-template-columns: 1fr;
-  overflow-y: auto;
-  scroll-snap-type: y proximity;
+/* Đường ghost hiện SUỐT lúc kéo (kể cả khi đang băng qua ngưỡng thu gọn) — chỉ dùng
+   transform (compositor), không đụng layout thật của 2 pane, để không ép trình duyệt
+   tính lại layout của bảng lớp mỗi khung hình. Layout/khung thu gọn thật (class
+   .split-collapsed-*) chỉ đổi đúng 1 lần lúc thả tay, nên trong lúc kéo nó có thể "trễ"
+   so với vị trí ghost — vì vậy ghost phải hiện xuyên suốt để người dùng vẫn thấy phản hồi
+   theo tay, thay vì thanh kéo thật đứng yên không nhúc nhích cho tới khi thả ra. */
+.pane-resizer-ghost {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 3px;
+  background: var(--accent, #6366f1);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent, #6366f1) 20%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  will-change: transform;
+  transform: translateX(0px);
+  transition: opacity 150ms ease;
 }
 
-.main.main-vertical .pane {
-  min-height: max(580px, calc(100vh - 145px));
-  height: calc(100vh - 145px);
-  scroll-snap-align: start;
-  flex: none;
+.main.split-dragging .pane-resizer-ghost {
+  opacity: 1;
+  transition: none;
+}
+
+.main.split-dragging {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.main.split-animate {
+  transition: grid-template-columns 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Wrapper cho nội dung bên trong pane (bảng lớp / TKB / nhãn thu gọn) — framer-motion
+   (AnimatePresence) gắn opacity/transform trực tiếp qua inline style lên đây để mờ dần
+   ra/vào khi đổi hẳn component, đồng bộ với lúc khung cột đang trượt (.split-animate).
+   Giữ nguyên hành vi flex-column + chiếm đủ chiều cao giống hệt .pane trước đây, vì giờ
+   đây mới là flex item trực tiếp của .pane (không phải .ct-wrap/.tt-toolbar nữa). */
+.pane-anim {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.main.split-collapsed-left {
+  grid-template-columns: 56px 14px minmax(0, 1fr);
+}
+
+.main.split-collapsed-right {
+  grid-template-columns: minmax(0, 1fr) 14px 56px;
 }
 
 .pane {
   background: var(--panel);
+  position: relative;
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+.pane::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+  z-index: 5;
+}
+
+.main.split-dragging .pane {
+  pointer-events: none;
+}
+
+.main.split-dragging.split-dim-left .pane-left::after {
+  opacity: 1;
+}
+
+.main.split-dragging.split-dim-right .pane-right::after {
+  opacity: 1;
+}
+
+.pane-left {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* ---------- Thanh kéo co giãn giữa 2 pane ---------- */
+.pane-resizer {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.pane-resizer::before {
+  content: '';
+  width: 3px;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--border);
+  transition: background 150ms ease, width 150ms ease;
+}
+
+.pane-resizer:hover::before,
+.pane-resizer.is-dragging::before {
+  background: var(--accent, #6366f1);
+  width: 4px;
+}
+
+.pane-resizer-swap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text-muted, inherit);
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transition: opacity 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.pane-resizer:hover .pane-resizer-swap,
+.pane-resizer.is-dragging .pane-resizer-swap {
+  opacity: 1;
+}
+
+.pane-resizer-swap:hover {
+  background: var(--accent, #6366f1);
+  color: #fff;
+}
+
+/* ---------- Pane thu gọn (peek) khi kéo gần hết cỡ ---------- */
+.split-peek {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 12px 4px;
+  color: var(--text-muted, inherit);
+}
+
+.split-peek:hover {
+  background: color-mix(in srgb, var(--accent, #6366f1) 8%, transparent);
+}
+
+.split-peek-icon {
+  font-size: 20px;
+}
+
+.split-peek-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* ---------- Class table ---------- */
@@ -1186,6 +1357,7 @@ body {
   min-width: 1250px;
   border-collapse: collapse;
   font-size: 12.5px;
+  table-layout: fixed;
 }
 
 .ct-table thead th {
@@ -1390,7 +1562,10 @@ select.ct-fi {
 }
 
 /* ---------- Timetable pane ---------- */
-.pane-right {}
+.pane-right {
+  grid-column: 3;
+  grid-row: 1;
+}
 
 .tt-toolbar {
   display: flex;
@@ -1953,9 +2128,15 @@ select.ct-fi {
 
 /* --- Tablet ≤ 980px: 2 cột → 1 cột dọc --- */
 @media (max-width: 980px) {
-  .main {
+  .main,
+  .main.split-collapsed-left,
+  .main.split-collapsed-right {
     grid-template-columns: 1fr;
     overflow: auto;
+  }
+
+  .pane-resizer {
+    display: none;
   }
 
   .pane {
