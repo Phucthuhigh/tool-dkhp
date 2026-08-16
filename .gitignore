@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output (Vercel builds this on deploy, no need to commit)
+dist/
+dist-ssr/
+.vercel/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude Code local-only settings
+.claude/settings.local.json
