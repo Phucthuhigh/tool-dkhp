@@ -362,6 +362,19 @@ export default function App() {
         }
       }
     }
+
+    // Lan khóa từ LT sang TH con: nếu lớp LT cha đã bị khóa (trùng lịch hoặc không khớp
+    // môn) thì không bao giờ chọn được LT đó nữa, nên các lớp TH thuộc lớp LT này cũng vô
+    // nghĩa nếu chọn riêng — khóa luôn để tránh người dùng chọn nhầm rồi bị vướng cảnh báo
+    // "thiếu LT" về sau.
+    for (const c of classes) {
+      if (selectedIds.has(c.id) || map.has(c.id) || !isTH(c)) continue
+      const p = parentLTCode(c, byCode)
+      const ltClass = p && byCode.get(p)
+      if (ltClass && map.has(ltClass.id)) {
+        map.set(c.id, `Lớp LT ${p} đã bị khóa: ${map.get(ltClass.id)}`)
+      }
+    }
     return map
   }, [classes, selectedIds, selectedClasses, byCode])
 
