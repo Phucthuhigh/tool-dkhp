@@ -1355,7 +1355,10 @@ body {
 .ct-table {
   width: 100%;
   min-width: 1250px;
-  border-collapse: collapse;
+  /* border-collapse: separate (không phải collapse) — sticky trên <th> không hoạt động
+     khi bảng ở chế độ collapse, đây là giới hạn của trình duyệt chứ không phải lỗi CSS. */
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 12.5px;
   table-layout: fixed;
 }
@@ -1375,7 +1378,10 @@ body {
   white-space: nowrap;
 }
 
-.ct-filter-row th {
+/* Độ đặc hiệu phải cao hơn ".ct-table thead th" (2 lớp phần tử + 1 lớp class) — nếu không
+   "top: 0" của rule đó sẽ đè "top: 33px" ở đây, khiến hàng lọc dính chồng lên đúng vị trí
+   hàng tiêu đề (che mất tên cột) thay vì xếp ngay bên dưới nó. */
+.ct-table .ct-filter-row th {
   top: 33px;
   padding: 5px 6px;
   background: var(--panel);
