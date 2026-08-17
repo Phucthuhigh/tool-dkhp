@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { formatTiet } from '../lib/tiet.js'
+import { buildIndex, isLT, isTH, parentLTCode } from '../lib/link.js'
 
 const EMPTY = {}
 const EMPTY_SET = new Set()
@@ -83,8 +84,8 @@ function formatKhoaList(raw) {
 // chọn lớp khác. Nhờ vậy khi bấm chọn 1 lớp, React chỉ render lại đúng những dòng có trạng
 // thái thực sự đổi (thường chỉ vài dòng trùng lịch/cùng môn), bỏ qua hàng nghìn dòng còn lại
 // — thay vì phải dựng lại + so khớp toàn bộ bảng mỗi lần click như trước.
-const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, blockedReasonText }) {
-  const cls = checked ? 'ct-selected' : blocked ? 'ct-blocked' : suggest ? 'ct-suggest' : ''
+const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, blockedReasonText, nested }) {
+  const cls = [checked ? 'ct-selected' : blocked ? 'ct-blocked' : suggest ? 'ct-suggest' : '', nested ? 'ct-nested' : ''].filter(Boolean).join(' ')
   const hkLabel = [c.hocKy, c.namHoc].filter(Boolean).join(' / ')
   const extraInfo = [
     c.heDT && `Hệ: ${c.heDT}`,
@@ -224,6 +225,43 @@ export default function ClassTable({
     return baseFiltered.filter((c) => !blockedIds.has(c.id))
   }, [baseFiltered, hideBlocked, blockedIds])
 
+  // Dùng để tra cứu quan hệ LT–TH khi gộp dòng (buildIndex cần toàn bộ `classes`, không phải
+  // `filtered`, vì lớp LT cha có thể đã bị lọc mất trong khi TH con vẫn còn hiển thị)
+  const byCode = useMemo(() => buildIndex(classes), [classes])
+
+  // Xếp mỗi lớp TH ngay sau lớp LT cha của nó (thay vì giữ nguyên thứ tự rời rạc trong file)
+  // để người dùng thấy ngay lớp TH nào tương ứng với lớp LT nào, có thụt dòng làm dấu hiệu.
+  // TH mồ côi (lớp LT cha không nằm trong `filtered`, vd đang lọc riêng loại "TH") vẫn giữ vị
+  // trí gốc, không thụt dòng.
+  const rows = useMemo(() => {
+    const childrenByParent = new Map()
+    for (const c of filtered) {
+      if (!isTH(c)) continue
+      const p = parentLTCode(c, byCode)
+      if (!p) continue
+      const arr = childrenByParent.get(p)
+      if (arr) arr.push(c)
+      else childrenByParent.set(p, [c])
+    }
+
+    const consumed = new Set()
+    const out = []
+    for (const c of filtered) {
+      if (consumed.has(c.id)) continue
+      out.push({ c, nested: false })
+      consumed.add(c.id)
+      if (!isLT(c)) continue
+      const kids = childrenByParent.get(c.maLop)
+      if (!kids) continue
+      for (const k of kids) {
+        if (consumed.has(k.id)) continue
+        out.push({ c: k, nested: true })
+        consumed.add(k.id)
+      }
+    }
+    return out
+  }, [filtered, byCode])
+
   const active =
     type !== 'all' || Object.values(f).some((v) => v !== '')
 
@@ -311,7 +349,7 @@ export default function ClassTable({
             </tr>
           </thead>
           <tbody onClick={handleBodyClick}>
-            {filtered.map((c) => {
+            {rows.map(({ c, nested }) => {
               const checked = selectedIds.has(c.id)
               const blocked = !checked && blockedIds.has(c.id)
               const suggest = !checked && !blocked && suggestIds.has(c.id)
@@ -322,6 +360,7 @@ export default function ClassTable({
                   checked={checked}
                   blocked={blocked}
                   suggest={suggest}
+                  nested={nested}
                   blockedReasonText={blocked ? blockedReason.get(c.id) : undefined}
                 />
               )

@@ -1555,6 +1555,17 @@ select.ct-fi {
   border-radius: 10px;
 }
 
+/* Dòng lớp TH được xếp ngay dưới lớp LT cha — giữ cùng cấp bình thường (không thụt dòng),
+   chỉ thêm viền trái mảnh cùng màu với badge "LT" để báo hiệu nó thuộc cùng nhóm lớp LT ở
+   trên, không lấn sang ý nghĩa "gợi ý" (viền xanh lá của .ct-suggest) */
+.ct-nested {
+  box-shadow: inset 3px 0 0 #93c5fd;
+}
+
+.ct-nested.ct-suggest {
+  box-shadow: inset 3px 0 0 #22c55e;
+}
+
 .ct-muted {
   color: #cbd5e1;
 }
