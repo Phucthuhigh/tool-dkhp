@@ -279,6 +279,10 @@ export default function App() {
 
   function handleSelectCourse(code) {
     if (!code) return
+    // Khung trái (danh sách lớp) đang bị thu gọn thành nút peek — bấm môn học trên TKB
+    // lúc này vô nghĩa vì ClassTable không hiển thị. Tự động lật khung: ẩn TKB, mở khung
+    // trái ra để người dùng thấy ngay danh sách lớp đã lọc theo môn vừa bấm.
+    if (split.collapsed === 'left') onSplitExpand('left')
     setFilterMH(code)
     setTimeout(() => {
       const el = document.getElementById('input-filter-mh')
