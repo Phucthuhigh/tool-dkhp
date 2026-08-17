@@ -41,6 +41,43 @@ function matchTietFilter(c, tietStr) {
   return label.includes(s) || raw.includes(s)
 }
 
+// Cột khoaDKHP là danh sách khoá được phép ĐKHP, ngăn cách bằng dấu phẩy — vd "12, 13, 14".
+// Tách thành mảng từng khoá riêng lẻ để so khớp "khoá X có nằm trong danh sách không"
+// thay vì so bằng chuỗi nguyên văn.
+function parseKhoaDKHP(raw) {
+  if (!raw) return []
+  return String(raw).split(',').map((s) => s.trim()).filter(Boolean)
+}
+
+// Lớp có khớp khoá đang lọc không — ưu tiên danh sách khoaDKHP (nếu có), rơi về so trực
+// tiếp với cột khoa (khoá chung, không phải danh sách) cho các lớp/file chưa có khoaDKHP.
+function matchKhoaFilter(c, khoaValue) {
+  if (!khoaValue) return true
+  const list = parseKhoaDKHP(c.khoaDKHP)
+  if (list.length) return list.includes(khoaValue)
+  return c.khoa === khoaValue
+}
+
+// Nén danh sách khoá liên tục thành dạng khoảng cho gọn — "12, 13, 14, 15" -> "12-15" —
+// vì hiển thị nguyên văn cả chuỗi rất dễ tràn ra đè lên cột kế bên trong bảng dày cột.
+function formatKhoaList(raw) {
+  const list = parseKhoaDKHP(raw)
+  if (list.length === 0) return ''
+  const nums = list.map(Number)
+  if (nums.some((n) => Number.isNaN(n))) return list.join(', ')
+  const sorted = [...nums].sort((a, b) => a - b)
+  const ranges = []
+  let start = sorted[0]
+  let prev = sorted[0]
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === prev + 1) { prev = sorted[i]; continue }
+    ranges.push(start === prev ? `${start}` : `${start}-${prev}`)
+    start = prev = sorted[i]
+  }
+  ranges.push(start === prev ? `${start}` : `${start}-${prev}`)
+  return ranges.join(', ')
+}
+
 // Mỗi dòng bảng được memo hoá riêng: props chỉ gồm giá trị nguyên thuỷ (checked/blocked/
 // suggest/blockedReasonText) + object lớp `c` vốn không đổi identity giữa các lần chọn/bỏ
 // chọn lớp khác. Nhờ vậy khi bấm chọn 1 lớp, React chỉ render lại đúng những dòng có trạng
@@ -81,7 +118,9 @@ const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, bl
       <td className="col-tiet ct-num">{c.tiets.length ? formatTiet(c.tiets) : <span className="ct-muted">*</span>}</td>
       <td className="col-phong ct-mono">{c.phong && c.phong !== '*' ? c.phong : <span className="ct-muted">—</span>}</td>
       <td className="col-tc ct-num">{c.soTC || ''}</td>
-      <td className="col-khoa ct-mono">{c.khoa || <span className="ct-muted">—</span>}</td>
+      <td className="col-khoa ct-mono" title={c.khoaDKHP || undefined}>
+        {formatKhoaList(c.khoaDKHP) || c.khoa || <span className="ct-muted">—</span>}
+      </td>
       <td className="col-hk ct-mono">{hkLabel || <span className="ct-muted">—</span>}</td>
     </tr>
   )
@@ -137,11 +176,16 @@ export default function ClassTable({
     return [...s].sort()
   }, [classes])
 
-  // Tập hợp khóa học duy nhất để làm dropdown
+  // Tập hợp khóa học duy nhất để làm dropdown — tách từ danh sách khoaDKHP (vd "12, 13, 14"),
+  // rơi về cột khoa (giá trị đơn) cho lớp không có khoaDKHP.
   const khoaOptions = useMemo(() => {
     const s = new Set()
-    for (const c of classes) if (c.khoa) s.add(c.khoa)
-    return [...s].sort()
+    for (const c of classes) {
+      const list = parseKhoaDKHP(c.khoaDKHP)
+      if (list.length) list.forEach((k) => s.add(k))
+      else if (c.khoa) s.add(c.khoa)
+    }
+    return [...s].sort((a, b) => (Number(a) - Number(b)) || a.localeCompare(b))
   }, [classes])
 
   // Tách riêng phần lọc theo bộ lọc/loại (KHÔNG phụ thuộc blockedIds) khỏi phần lọc theo
@@ -170,7 +214,7 @@ export default function ClassTable({
         const label = [c.hocKy, c.namHoc].filter(Boolean).join(' / ')
         if (label !== f.hk) return false
       }
-      if (f.khoa && c.khoa !== f.khoa) return false
+      if (!matchKhoaFilter(c, f.khoa)) return false
       return true
     })
   }, [classes, f, type])

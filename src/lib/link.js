@@ -25,8 +25,15 @@ export function buildIndex(classes) {
 }
 
 // Với một lớp TH, trả về mã lớp LT cha nếu tồn tại; ngược lại null.
+// Ưu tiên cột "MA LOP LT" tường minh từ file (nếu có) — chính xác hơn việc đoán qua
+// hậu tố ".n" cuối mã lớp, rồi mới rơi về cách đoán cũ cho các file chưa có cột này.
 export function parentLTCode(c, byCode) {
   if (!isTH(c)) return null
+  const explicit = c.maLopLT && String(c.maLopLT).trim()
+  if (explicit) {
+    const explicitParent = byCode.get(explicit)
+    if (explicitParent && isLT(explicitParent)) return explicit
+  }
   const p = stripLastSeg(c.maLop)
   const parent = byCode.get(p)
   return parent && isLT(parent) ? p : null

@@ -11,28 +11,47 @@ const HEADER_MAP = {
   'STT': 'stt',
   'MÃ MH': 'maMH',
   'MÃ MÔN HỌC': 'maMH',
+  'MAMH': 'maMH',
   'MÃ LỚP': 'maLop',
+  'MALOP': 'maLop',
   'TÊN MÔN HỌC': 'tenMH',
+  'TENMH': 'tenMH',
   'MÃ GIẢNG VIÊN': 'maGV',
+  'MAGV': 'maGV',
   'TÊN GIẢNG VIÊN': 'tenGV',
   'TÊN TRỢ GIẢNG': 'tenGV',
+  'TENGV': 'tenGV',
   'SĨ SỐ': 'siSo',
   'SỈ SỐ': 'siSo',      // biến thể i ngắn
+  'SISO': 'siSo',
   'SỐ TC': 'soTC',
   'TỐ TC': 'soTC',      // tên cột mới
+  'SOTC': 'soTC',
   'THỰC HÀNH': 'thucHanh',
+  'THUCHANH': 'thucHanh',
   'HTGD': 'htgd',
   'THỨ': 'thu',
+  'THU': 'thu',
   'TIẾT': 'tiet',
+  'TIET': 'tiet',
   'CÁCH TUẦN': 'cachTuan',
+  'CACHTUAN': 'cachTuan',
   'PHÒNG HỌC': 'phong',
+  'PHONGHOC': 'phong',
   'KHOÁ HỌC': 'khoa',   // Á — đúng tên cột thực tế
   'KHÓA HỌC': 'khoa',   // biến thể Á (cũ)
   'KHOA HỌC': 'khoa',   // biến thể không dấu
+  'KHOAHOC': 'khoa',    // biến thể không dấu, không cách
+  'KHOAHOC_DKHP': 'khoaDKHP', // khoá học riêng cho ĐKHP, có thể khác cột KHOAHOC chung
   'HỌC KỲ': 'hocKy',
+  'HOCKY': 'hocKy',
   'NĂM HỌC': 'namHoc',
+  'NAMHOC': 'namHoc',
   'HỆ ĐT': 'heDT',
+  'HEDT': 'heDT',
+  'HEDT_DKHP': 'heDTDKHP',   // hệ ĐT riêng cho ĐKHP, có thể khác cột HEDT chung
   'KHOA QL': 'khoaQL',
+  'KHOAQL': 'khoaQL',
   'NHD': 'nhd',
   'NBD': 'nhd',      // tên thực tế trong file
   'NK1': 'nk1',
@@ -41,12 +60,17 @@ const HEADER_MAP = {
   'GHI CHÚ': 'ghiChu',
   'NGON NGU': 'ngonNgu',  // không dấu — tên thực tế
   'NGÔN NGỮ': 'ngonNgu',
+  'NGONNGU': 'ngonNgu',
+  'MA LOP LT': 'maLopLT', // mã lớp LT cha — dùng để khớp TH-LT chính xác hơn thay vì đoán qua ".n" cuối mã lớp
+  'BUOI': 'buoi',
 }
 
 function findHeaderRow(rows) {
   for (let i = 0; i < Math.min(rows.length, 30); i++) {
     const cells = rows[i].map(norm)
-    if (cells.includes('MÃ LỚP') && (cells.includes('THỨ') || cells.includes('TIẾT'))) {
+    const hasMaLop = cells.includes('MÃ LỚP') || cells.includes('MALOP')
+    const hasThuTiet = cells.includes('THỨ') || cells.includes('TIẾT') || cells.includes('THU') || cells.includes('TIET')
+    if (hasMaLop && hasThuTiet) {
       return i
     }
   }
@@ -101,6 +125,10 @@ function parseSheet(ws) {
       nk1: String(get('nk1') ?? '').trim(),
       ghiChu: String(get('ghiChu') ?? '').trim(),
       ngonNgu: String(get('ngonNgu') ?? '').trim(),
+      khoaDKHP: String(get('khoaDKHP') ?? '').trim(),
+      heDTDKHP: String(get('heDTDKHP') ?? '').trim(),
+      maLopLT: String(get('maLopLT') ?? '').trim(),
+      buoi: String(get('buoi') ?? '').trim(),
     })
   }
   return out

@@ -1447,6 +1447,10 @@ select.ct-fi {
 
 .col-khoa {
   min-width: 110px;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .col-hk {
