@@ -95,26 +95,20 @@ const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, bl
       <td className="col-lop ct-mono">{c.maLop}</td>
       <td className="col-gv">
         {c.tenGV ? (
-          <button
-            type="button"
-            className="ct-prof-link"
-            onClick={(e) => {
-              e.stopPropagation()
-              onProfClick?.(c.tenGV)
-            }}
-            title={`Xem review chi tiết của GV ${c.tenGV}`}
-          >
+          <div className="ct-prof-stack" onClick={(e) => {
+            e.stopPropagation()
+            onProfClick?.(c.tenGV)
+          }} title={`Xem review chi tiết của GV ${c.tenGV}`}>
             <span className="ct-prof-name">{c.tenGV}</span>
             {badge && (
-              <span className={badge.className}>
+              <span className={`${badge.className} ct-prof-badge`}>
                 {badge.scoreText}
               </span>
             )}
-          </button>
+          </div>
         ) : (
           <span className="ct-muted">—</span>
         )}
-        {c.maGV && <div className="ct-mamh">{c.maGV}</div>}
       </td>
       <td className="col-thu ct-num">{c.thu ?? <span className="ct-muted">*</span>}</td>
       <td className="col-tiet ct-num">{c.tiets.length ? formatTiet(c.tiets) : <span className="ct-muted">*</span>}</td>

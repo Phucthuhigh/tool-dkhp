@@ -169,7 +169,9 @@ export default function AutoScheduleModal({
         map.set(code, {
           maMH: code,
           tenMH: c.tenMH,
-          soTC: Number(c.soTC) || 0,
+          ltTC: 0,
+          thTC: 0,
+          otherTC: 0,
           classes: [],
           hasLT: false,
           hasTH: false,
@@ -177,11 +179,22 @@ export default function AutoScheduleModal({
       }
       const item = map.get(code)
       item.classes.push(c)
-      if (c.htgd === 'LT') item.hasLT = true
-      if (c.htgd === 'HT1' || c.htgd === 'HT2') item.hasTH = true
+      const tc = Number(c.soTC) || 0
+      if (c.htgd === 'LT') {
+        item.hasLT = true
+        if (!item.ltTC) item.ltTC = tc
+      } else if (c.htgd === 'HT1' || c.htgd === 'HT2') {
+        item.hasTH = true
+        if (!item.thTC) item.thTC = tc
+      } else if (!item.otherTC) {
+        item.otherTC = tc
+      }
     })
 
-    return Array.from(map.values())
+    return Array.from(map.values()).map((item) => ({
+      ...item,
+      soTC: item.ltTC + item.thTC + item.otherTC,
+    }))
   }, [allClasses])
 
   // Tính tổng số tín chỉ của các môn đã chọn

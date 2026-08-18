@@ -1445,6 +1445,7 @@ select.ct-fi {
 .col-gv {
   min-width: 170px;
   max-width: 220px;
+  overflow: hidden;
 }
 
 .col-thu {
@@ -1979,12 +1980,15 @@ select.ct-fi {
   font-weight: 600;
   color: var(--c-sub);
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
   width: 100%;
   opacity: 0.95;
   margin-top: 2px;
+  flex-wrap: wrap;
+  overflow: visible;
 }
 
 :root[data-theme="dark"] .tt-block-gv {
@@ -1998,8 +2002,11 @@ select.ct-fi {
   word-break: break-word;
   white-space: normal;
   color: inherit;
-  display: block;
-  width: 100%;
+  display: inline-block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 .tt-block-date {
@@ -2570,37 +2577,36 @@ select.ct-fi {
   border-color: rgba(156, 163, 175, 0.35);
 }
 
-.ct-prof-link {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  display: inline-flex;
+.ct-prof-stack {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 3px;
-  text-align: left;
-  border-radius: 4px;
-  transition: opacity 0.15s ease;
+  gap: 4px;
   width: 100%;
-}
-
-.ct-prof-link:hover {
-  opacity: 0.85;
+  cursor: pointer;
 }
 
 .ct-prof-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  line-height: 1.3;
-  word-break: break-word;
-  white-space: normal;
+  font-size: 12.8px;
+  font-weight: 700;
+  line-height: 1.35;
   color: var(--text);
   display: block;
   width: 100%;
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
+}
+
+.ct-prof-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
 }
 
 /* Header Auto Schedule Button */
@@ -3868,25 +3874,6 @@ select.ct-fi {
     gap: 4px;
     justify-content: center;
   }
-}
-
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-  color: #3b82f6;
-  white-space: nowrap;
-}
-
-.footer-chibi {
-  font-size: 14px;
-}
-
-.footer-quote {
-  font-style: italic;
-  font-size: 11.5px;
-  opacity: 0.9;
 }
 
 .footer-center {

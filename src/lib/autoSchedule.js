@@ -255,6 +255,7 @@ export function autoScheduleEngine(selectedSubjectCodes, allClasses, options = {
 
     const busyDays = new Set(allClassesInPlan.map((c) => c.thu).filter(Boolean))
     const achievedDaysOff = preferredDaysOff.filter((dayNum) => !busyDays.has(dayNum))
+
     const totalTC = allClassesInPlan.reduce((sum, c) => sum + (Number(c.soTC) || 0), 0)
 
     return {
