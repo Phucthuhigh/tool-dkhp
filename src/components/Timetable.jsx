@@ -500,9 +500,9 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
                       }}
                       title={`Xem review chi tiết của GV ${c.tenGV}`}
                     >
-                      <span className="tt-gv-icon">👤</span> {c.tenGV}
+                      <span className="tt-gv-name">👤 {c.tenGV}</span>
                       {badge && (
-                        <span className={badge.className} style={{ marginLeft: 4 }}>
+                        <span className={badge.className}>
                           {badge.scoreText}
                         </span>
                       )}
