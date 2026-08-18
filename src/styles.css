@@ -3652,12 +3652,13 @@ select.ct-fi {
 }
 
 .asm-btn-apply-plan {
+  width: 100%;
   background: #16a34a;
   color: #ffffff;
   border: none;
-  padding: 4px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s ease;

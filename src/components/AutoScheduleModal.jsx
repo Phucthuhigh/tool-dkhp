@@ -551,16 +551,6 @@ export default function AutoScheduleModal({
                           <span className="asm-badge-info">
                             {plan.totalTC} Tín chỉ ({plan.classes.length} lớp)
                           </span>
-                          <button
-                            type="button"
-                            className="asm-btn-apply-plan"
-                            onClick={() => {
-                              onApplyPlan?.(plan.classes)
-                              onClose()
-                            }}
-                          >
-                            Áp dụng phương án 🚀
-                          </button>
                         </div>
                       </div>
 
@@ -604,6 +594,17 @@ export default function AutoScheduleModal({
                           })}
                         </div>
                       </div>
+
+                      <button
+                        type="button"
+                        className="asm-btn-apply-plan"
+                        onClick={() => {
+                          onApplyPlan?.(plan.classes)
+                          onClose()
+                        }}
+                      >
+                        Áp dụng phương án 🚀
+                      </button>
                     </div>
                   ))}
                 </div>
