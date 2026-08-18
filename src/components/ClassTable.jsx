@@ -1,22 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { formatTiet } from '../lib/tiet.js'
 import { buildIndex, isLT, isTH, parentLTCode } from '../lib/link.js'
+import { getProfReviewData, getProfBadgeInfo } from '../lib/profReview.js'
 
 const EMPTY = {}
 const EMPTY_SET = new Set()
 
-// Bảng danh sách lớp có checkbox + lọc theo từng cột.
-// props:
-//  - selectedIds: Set id đang chọn
-//  - blockedIds: Set id bị khóa (trùng lịch hoặc không khớp LT–TH)
-//  - blockedReason: Map id -> lý do khóa (hiển thị tooltip)
-// Logic lọc tiết thông minh: hỗ trợ tìm khoảng "1-5", số đơn "3", hoặc chuỗi "1-3"
 function matchTietFilter(c, tietStr) {
   if (!tietStr) return true
   const s = tietStr.trim().toLowerCase()
   if (!s) return true
 
-  // Cú pháp khoảng: vd "1-5", "1 - 5", "6-10"
   const rangeMatch = s.match(/^(\d+)\s*-\s*(\d+)$/)
   if (rangeMatch) {
     if (!c.tiets || c.tiets.length === 0) return false
@@ -26,32 +20,24 @@ function matchTietFilter(c, tietStr) {
     const maxRange = Math.max(start, end)
     const minTiet = Math.min(...c.tiets)
     const maxTiet = Math.max(...c.tiets)
-    // Lớp nằm hoàn toàn trong khoảng [minRange, maxRange] (vd: 1-3, 4-5, 2-4 đều thuộc 1-5)
     return minTiet >= minRange && maxTiet <= maxRange
   }
 
-  // Số đơn lẻ: vd "3" -> lớp chứa tiết 3
   if (/^\d+$/.test(s)) {
     const target = parseInt(s, 10)
     return c.tiets && c.tiets.includes(target)
   }
 
-  // Khớp chuỗi thông thường
   const label = c.tiets && c.tiets.length ? formatTiet(c.tiets).toLowerCase() : '*'
   const raw = c.tiets ? c.tiets.join('') : ''
   return label.includes(s) || raw.includes(s)
 }
 
-// Cột khoaDKHP là danh sách khoá được phép ĐKHP, ngăn cách bằng dấu phẩy — vd "12, 13, 14".
-// Tách thành mảng từng khoá riêng lẻ để so khớp "khoá X có nằm trong danh sách không"
-// thay vì so bằng chuỗi nguyên văn.
 function parseKhoaDKHP(raw) {
   if (!raw) return []
   return String(raw).split(',').map((s) => s.trim()).filter(Boolean)
 }
 
-// Lớp có khớp khoá đang lọc không — ưu tiên danh sách khoaDKHP (nếu có), rơi về so trực
-// tiếp với cột khoa (khoá chung, không phải danh sách) cho các lớp/file chưa có khoaDKHP.
 function matchKhoaFilter(c, khoaValue) {
   if (!khoaValue) return true
   const list = parseKhoaDKHP(c.khoaDKHP)
@@ -59,8 +45,6 @@ function matchKhoaFilter(c, khoaValue) {
   return c.khoa === khoaValue
 }
 
-// Nén danh sách khoá liên tục thành dạng khoảng cho gọn — "12, 13, 14, 15" -> "12-15" —
-// vì hiển thị nguyên văn cả chuỗi rất dễ tràn ra đè lên cột kế bên trong bảng dày cột.
 function formatKhoaList(raw) {
   const list = parseKhoaDKHP(raw)
   if (list.length === 0) return ''
@@ -79,12 +63,7 @@ function formatKhoaList(raw) {
   return ranges.join(', ')
 }
 
-// Mỗi dòng bảng được memo hoá riêng: props chỉ gồm giá trị nguyên thuỷ (checked/blocked/
-// suggest/blockedReasonText) + object lớp `c` vốn không đổi identity giữa các lần chọn/bỏ
-// chọn lớp khác. Nhờ vậy khi bấm chọn 1 lớp, React chỉ render lại đúng những dòng có trạng
-// thái thực sự đổi (thường chỉ vài dòng trùng lịch/cùng môn), bỏ qua hàng nghìn dòng còn lại
-// — thay vì phải dựng lại + so khớp toàn bộ bảng mỗi lần click như trước.
-const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, blockedReasonText, nested }) {
+const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, blockedReasonText, nested, onProfClick }) {
   const cls = [checked ? 'ct-selected' : blocked ? 'ct-blocked' : suggest ? 'ct-suggest' : '', nested ? 'ct-nested' : ''].filter(Boolean).join(' ')
   const hkLabel = [c.hocKy, c.namHoc].filter(Boolean).join(' / ')
   const extraInfo = [
@@ -94,6 +73,9 @@ const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, bl
     c.ghiChu && `Ghi chú: ${c.ghiChu}`,
   ].filter(Boolean).join(' | ')
   const tooltip = blocked ? blockedReasonText : (extraInfo || undefined)
+
+  const profInfo = c.tenGV ? getProfReviewData(c.tenGV) : null
+  const badge = profInfo ? getProfBadgeInfo(profInfo.rating) : null
 
   return (
     <tr data-id={c.id} data-blocked={blocked ? '1' : '0'} className={cls} title={tooltip}>
@@ -112,7 +94,26 @@ const ClassRow = React.memo(function ClassRow({ c, checked, blocked, suggest, bl
       </td>
       <td className="col-lop ct-mono">{c.maLop}</td>
       <td className="col-gv">
-        {c.tenGV || <span className="ct-muted">—</span>}
+        {c.tenGV ? (
+          <button
+            type="button"
+            className="ct-prof-link"
+            onClick={(e) => {
+              e.stopPropagation()
+              onProfClick?.(c.tenGV)
+            }}
+            title={`Xem review chi tiết của GV ${c.tenGV}`}
+          >
+            <span className="ct-prof-name">{c.tenGV}</span>
+            {badge && (
+              <span className={badge.className}>
+                {badge.scoreText}
+              </span>
+            )}
+          </button>
+        ) : (
+          <span className="ct-muted">—</span>
+        )}
         {c.maGV && <div className="ct-mamh">{c.maGV}</div>}
       </td>
       <td className="col-thu ct-num">{c.thu ?? <span className="ct-muted">*</span>}</td>
@@ -134,14 +135,15 @@ export default function ClassTable({
   blockedReason = EMPTY,
   suggestIds = EMPTY_SET,
   onToggle,
+  onSelectMultiple,
   filterMH = '',
   onFilterMHChange,
+  onProfClick,
 }) {
   const [f, setF] = useState({ mh: filterMH, lop: '', gv: '', thu: '', tiet: '', phong: '', tc: '', hk: '', khoa: '' })
 
-  // Bắt sự kiện click theo kiểu delegation (1 handler ở <tbody> thay vì mỗi dòng 1 callback)
-  // — để các dòng có thể memo hoá độc lập mà không phụ thuộc identity của onToggle.
   function handleBodyClick(e) {
+    if (e.target.closest('.ct-prof-link')) return
     const tr = e.target.closest('tr[data-id]')
     if (!tr || tr.dataset.blocked === '1') return
     onToggle(tr.dataset.id)
@@ -167,7 +169,6 @@ export default function ClassTable({
     return [...s].sort((a, b) => a - b)
   }, [classes])
 
-  // Tập hợp học kỳ/năm học duy nhất để làm dropdown
   const hkOptions = useMemo(() => {
     const s = new Set()
     for (const c of classes) {
@@ -177,8 +178,6 @@ export default function ClassTable({
     return [...s].sort()
   }, [classes])
 
-  // Tập hợp khóa học duy nhất để làm dropdown — tách từ danh sách khoaDKHP (vd "12, 13, 14"),
-  // rơi về cột khoa (giá trị đơn) cho lớp không có khoaDKHP.
   const khoaOptions = useMemo(() => {
     const s = new Set()
     for (const c of classes) {
@@ -189,19 +188,27 @@ export default function ClassTable({
     return [...s].sort((a, b) => (Number(a) - Number(b)) || a.localeCompare(b))
   }, [classes])
 
-  // Tách riêng phần lọc theo bộ lọc/loại (KHÔNG phụ thuộc blockedIds) khỏi phần lọc theo
-  // hideBlocked — vì blockedIds đổi identity mỗi lần chọn/bỏ chọn 1 lớp bất kỳ. Nếu gộp
-  // chung 1 mảng phụ thuộc như cũ, mỗi lần bấm chọn lớp sẽ buộc quét lại TOÀN BỘ danh sách
-  // (có thể hàng nghìn dòng) dù người dùng không bật "Ẩn lớp không hợp lệ".
+  // Lọc đa năng theo nhiều mã môn (ngăn cách bởi dấu phẩy, chấm phẩy, khoảng trắng, xuống dòng)
   const baseFiltered = useMemo(() => {
-    const mh = f.mh.trim().toLowerCase()
+    const mhTerms = f.mh
+      .split(/[\s,;\n]+/)
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean)
+
     const lop = f.lop.trim().toLowerCase()
     const gv = f.gv.trim().toLowerCase()
     const phong = f.phong.trim().toLowerCase()
+
     return classes.filter((c) => {
       if (type === 'LT' && c.htgd !== 'LT') return false
       if (type === 'TH' && !(c.htgd === 'HT1' || c.htgd === 'HT2')) return false
-      if (mh && !(`${c.maMH} ${c.tenMH}`.toLowerCase().includes(mh))) return false
+
+      if (mhTerms.length > 0) {
+        const fullStr = `${c.maMH} ${c.tenMH}`.toLowerCase()
+        const matchesAny = mhTerms.some((term) => fullStr.includes(term))
+        if (!matchesAny) return false
+      }
+
       if (lop && !c.maLop.toLowerCase().includes(lop)) return false
       if (gv && !(`${c.maGV || ''} ${c.tenGV}`.toLowerCase().includes(gv))) return false
       if (f.thu) {
@@ -225,14 +232,8 @@ export default function ClassTable({
     return baseFiltered.filter((c) => !blockedIds.has(c.id))
   }, [baseFiltered, hideBlocked, blockedIds])
 
-  // Dùng để tra cứu quan hệ LT–TH khi gộp dòng (buildIndex cần toàn bộ `classes`, không phải
-  // `filtered`, vì lớp LT cha có thể đã bị lọc mất trong khi TH con vẫn còn hiển thị)
   const byCode = useMemo(() => buildIndex(classes), [classes])
 
-  // Xếp mỗi lớp TH ngay sau lớp LT cha của nó (thay vì giữ nguyên thứ tự rời rạc trong file)
-  // để người dùng thấy ngay lớp TH nào tương ứng với lớp LT nào, có thụt dòng làm dấu hiệu.
-  // TH mồ côi (lớp LT cha không nằm trong `filtered`, vd đang lọc riêng loại "TH") vẫn giữ vị
-  // trí gốc, không thụt dòng.
   const rows = useMemo(() => {
     const childrenByParent = new Map()
     for (const c of filtered) {
@@ -262,13 +263,20 @@ export default function ClassTable({
     return out
   }, [filtered, byCode])
 
-  const active =
-    type !== 'all' || Object.values(f).some((v) => v !== '')
+  const active = type !== 'all' || Object.values(f).some((v) => v !== '')
 
   function clearAll() {
     setF({ mh: '', lop: '', gv: '', thu: '', tiet: '', phong: '', tc: '', hk: '', khoa: '' })
     setType('all')
     onFilterMHChange?.('')
+  }
+
+  // Chọn hàng loạt tất cả môn đang lọc
+  function handleSelectAllFiltered() {
+    const selectable = filtered.filter((c) => !blockedIds.has(c.id))
+    if (selectable.length === 0) return
+    const ids = selectable.map((c) => c.id)
+    onSelectMultiple?.(ids)
   }
 
   return (
@@ -294,6 +302,15 @@ export default function ClassTable({
           {hideBlocked ? '🚫 Đang ẩn lớp không hợp lệ' : '👁 Ẩn lớp không hợp lệ'}
           {blockedIds.size > 0 && <span className="ct-toggle-badge">{blockedIds.size}</span>}
         </button>
+
+        <button
+          className="ct-btn-select-all"
+          onClick={handleSelectAllFiltered}
+          title="Chọn tất cả các lớp hợp lệ đang hiển thị"
+        >
+          ✓ Chọn tất cả {filtered.length} lớp đang lọc
+        </button>
+
         {active && (
           <button className="ct-clear" onClick={clearAll}>✕ Xóa lọc</button>
         )}
@@ -316,7 +333,15 @@ export default function ClassTable({
             </tr>
             <tr className="ct-filter-row">
               <th className="ct-cb"></th>
-              <th><input id="input-filter-mh" className="ct-fi" value={f.mh} onChange={set('mh')} placeholder="Tên / mã môn…" /></th>
+              <th>
+                <input
+                  id="input-filter-mh"
+                  className="ct-fi"
+                  value={f.mh}
+                  onChange={set('mh')}
+                  placeholder="Mã/tên môn (phẩy, cách...)"
+                />
+              </th>
               <th><input className="ct-fi" value={f.lop} onChange={set('lop')} placeholder="Mã lớp…" /></th>
               <th><input className="ct-fi" value={f.gv} onChange={set('gv')} placeholder="GV / mã GV…" /></th>
               <th>
@@ -362,6 +387,7 @@ export default function ClassTable({
                   suggest={suggest}
                   nested={nested}
                   blockedReasonText={blocked ? blockedReason.get(c.id) : undefined}
+                  onProfClick={onProfClick}
                 />
               )
             })}

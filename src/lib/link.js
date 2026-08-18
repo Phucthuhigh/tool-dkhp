@@ -11,6 +11,56 @@ export function isTH(c) {
   return TH_HTGD.has(c.htgd)
 }
 
+// Bóc tách mã nhóm từ mã lớp. Ví dụ:
+// NT209.R11.ANTT -> R11
+// NT209.R11.1 -> R11
+// IT007.R19 -> R19
+// SE104.CLCLC.1 -> CLCLC
+export function getGroupCode(code) {
+  if (!code) return ''
+  const parts = String(code).trim().split('.')
+  if (parts.length > 1) {
+    return parts[1].trim().toUpperCase()
+  }
+  return parts[0].trim().toUpperCase()
+}
+
+// Kiểm tra lớp TH có thuộc đúng lớp LT (cùng môn + cùng nhóm/mã cha)
+export function isChildOf(thClass, ltClass) {
+  if (!isTH(thClass) || !isLT(ltClass)) return false
+  if (thClass.maMH !== ltClass.maMH) return false
+
+  // Lớp Thực hành chỉ được ghép với lớp Lý thuyết cùng nhóm/cùng mã cha
+  const thGroup = getGroupCode(thClass.maLop)
+  const ltGroup = getGroupCode(ltClass.maLop)
+  if (thGroup !== ltGroup) return false
+
+  // Nếu có cột maLopLT tường minh
+  if (thClass.maLopLT && String(thClass.maLopLT).trim()) {
+    return String(thClass.maLopLT).trim() === ltClass.maLop
+  }
+
+  return true
+}
+
+// Kiểm tra lớp có khớp khóa học (K20, K19...) hay không.
+// QUAN TRỌNG: Ô trống cột khoaDKHP / khoa có nghĩa là mở chung cho tất cả các khóa.
+export function matchKhoaFilter(c, studentCohort) {
+  if (!studentCohort) return true
+  const rawList = c.khoaDKHP || c.khoa
+  if (!rawList || String(rawList).trim() === '') return true
+
+  const list = String(rawList).split(',').map((s) => s.trim().toUpperCase()).filter(Boolean)
+  const cohortClean = String(studentCohort).trim().toUpperCase()
+  const cohortNum = cohortClean.replace(/^K/i, '')
+
+  return list.some((k) => {
+    const kClean = k.trim().toUpperCase()
+    const kNum = kClean.replace(/^K/i, '')
+    return kClean === cohortClean || kNum === cohortNum || kClean === `K${cohortNum}`
+  })
+}
+
 // Bỏ đoạn cuối sau dấu chấm: "IT007.R19.1" -> "IT007.R19"
 export function stripLastSeg(code) {
   const i = code.lastIndexOf('.')

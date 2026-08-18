@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react'
 import { DAYS, TIET_LIST, TIET_TIME, formatTiet } from '../lib/tiet.js'
+import { getProfReviewData, getProfBadgeInfo } from '../lib/profReview.js'
 
 // Bảng màu rực rỡ & hài hòa, có accent line, gradient và chế độ sáng/tối
 const PALETTE = [
@@ -284,7 +285,7 @@ function contiguousRanges(tiets) {
   return ranges
 }
 
-const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect, onSelectCourse }, ref) {
+const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect, onSelectCourse, onProfClick }, ref) {
   const scheduled = classes.filter((c) => c.thu != null && c.tiets.length > 0)
   const noFixed = classes.filter((c) => c.thu == null || c.tiets.length === 0)
   const totalTC = classes.reduce((s, c) => s + (Number(c.soTC) || 0), 0)
@@ -347,6 +348,10 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
           const courseCode = b.c.maMH || b.c.maLop
           const dateRange = getDateRange(b.c.nhd, b.c.nk1)
           const dateTooltip = getDateTooltip(b.c.nhd, b.c.nk1)
+
+          const profInfo = b.c.tenGV ? getProfReviewData(b.c.tenGV) : null
+          const badge = profInfo ? getProfBadgeInfo(profInfo.rating) : null
+
           return (
             <div
               key={i}
@@ -392,11 +397,23 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
               <div className="tt-block-name" title={b.c.tenMH}>
                 {b.c.tenMH}
               </div>
-              {b.c.tenGV && (
-                <div className="tt-block-gv" title={b.c.tenGV}>
-                  <span className="tt-gv-icon">👤</span> {b.c.tenGV}
-                </div>
-              )}
+                  {b.c.tenGV && (
+                    <div
+                      className="tt-block-gv"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onProfClick?.(b.c.tenGV)
+                      }}
+                      title={`Xem review chi tiết của GV ${b.c.tenGV}`}
+                    >
+                      <span className="tt-gv-name">👤 {b.c.tenGV}</span>
+                      {badge && (
+                        <span className={badge.className}>
+                          {badge.scoreText}
+                        </span>
+                      )}
+                    </div>
+                  )}
               {dateRange && (
                 <div className="tt-block-date" title={dateTooltip || undefined}>
                   <span className="tt-gv-icon">📅</span> {dateRange}
@@ -427,6 +444,10 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
               const courseCode = c.maMH || c.maLop
               const dateRange = getDateRange(c.nhd, c.nk1)
               const dateTooltip = getDateTooltip(c.nhd, c.nk1)
+
+              const profInfo = c.tenGV ? getProfReviewData(c.tenGV) : null
+              const badge = profInfo ? getProfBadgeInfo(profInfo.rating) : null
+
               return (
                 <div
                   key={c.id}
@@ -471,8 +492,20 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
                     {c.tenMH}
                   </div>
                   {c.tenGV && (
-                    <div className="tt-block-gv" title={c.tenGV}>
+                    <div
+                      className="tt-block-gv"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onProfClick?.(c.tenGV)
+                      }}
+                      title={`Xem review chi tiết của GV ${c.tenGV}`}
+                    >
                       <span className="tt-gv-icon">👤</span> {c.tenGV}
+                      {badge && (
+                        <span className={badge.className} style={{ marginLeft: 4 }}>
+                          {badge.scoreText}
+                        </span>
+                      )}
                     </div>
                   )}
                   {dateRange && (
@@ -489,6 +522,7 @@ const Timetable = forwardRef(function Timetable({ classes, planName, onDeselect,
     </div>
   )
 })
+
 
 function dayCol(thu) {
   // cột 1 = giờ; thứ 2 -> cột 2, ... thứ 7 -> cột 7

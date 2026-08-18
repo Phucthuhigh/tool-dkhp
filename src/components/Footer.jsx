@@ -1,0 +1,32 @@
+import React from 'react'
+
+export default function Footer({ mode = 'full' }) {
+  return (
+    <footer className={`footer-bar ${mode === 'slim' ? 'footer-slim' : ''}`}>
+      <div className="footer-left">
+        <span className="footer-chibi">💙</span>
+        <span className="footer-quote">
+          "Cho dù có xảy ra chuyện gì... Rem vẫn sẽ luôn ở bên anh!"
+        </span>
+      </div>
+
+      <div className="footer-center">
+        <span className="footer-disclaimer">
+          ⚠️ Website cá nhân hỗ trợ xếp lịch, không thuộc quyền sở hữu hay quản lý của Trường Đại học Công nghệ Thông tin (UIT)
+        </span>
+      </div>
+
+      <div className="footer-right">
+        <a
+          href="https://everytime.kr"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="footer-source-link"
+          title="Mở ứng dụng Everytime trong tab mới"
+        >
+          ℹ️ Đánh giá GV từ <span className="footer-link-highlight">Everytime ↗</span>
+        </a>
+      </div>
+    </footer>
+  )
+}

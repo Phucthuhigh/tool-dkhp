@@ -4,12 +4,16 @@ import { toPng } from 'html-to-image'
 import { parseWorkbook } from './lib/parseExcel.js'
 import { isConflict } from './lib/tiet.js'
 import { buildIndex, familyIncompatible, incompatReason, parentLTCode, isLT, isTH } from './lib/link.js'
+import { autoLoadPublicProfExcel } from './lib/profReview.js'
 import * as store from './lib/storage.js'
 import FileUpload from './components/FileUpload.jsx'
 import ClassTable from './components/ClassTable.jsx'
 import Timetable from './components/Timetable.jsx'
 import GuideModal from './components/GuideModal.jsx'
 import CodesModal from './components/CodesModal.jsx'
+import ProfModal from './components/ProfModal.jsx'
+import AutoScheduleModal from './components/AutoScheduleModal.jsx'
+import Footer from './components/Footer.jsx'
 
 const GUIDE_SEEN_KEY = 'dkhp.guideSeen.v1'
 const SPLIT_KEY = 'dkhp.split.v1'
@@ -59,6 +63,40 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [showGuide, setShowGuide] = useState(() => !localStorage.getItem(GUIDE_SEEN_KEY))
   const [showCodes, setShowCodes] = useState(false)
+  const [showAutoModal, setShowAutoModal] = useState(false)
+  const [profModalName, setProfModalName] = useState(null)
+  const [showProfModal, setShowProfModal] = useState(false)
+
+  useEffect(() => {
+    autoLoadPublicProfExcel()
+  }, [])
+
+  function handleProfClick(name) {
+    if (!name) return
+    setProfModalName(name)
+    setShowProfModal(true)
+  }
+
+  function handleApplyAutoPlan(selectedClassesInPlan) {
+    const ids = selectedClassesInPlan.map((c) => c.id)
+    const id = store.uid()
+    const nextNum = plans.length + 1
+
+    setPlanState((s) => ({
+      plans: [...s.plans, { id, name: `Phương án ${nextNum}`, selected: ids }],
+      activeId: id,
+    }))
+
+    showToast(`Đã tạo phương án mới "Phương án ${nextNum}" từ lịch tự động!`, 'success')
+  }
+
+  function handleSelectMultipleClasses(ids) {
+    updateActive((p) => ({
+      ...p,
+      selected: Array.from(new Set([...p.selected, ...ids])),
+    }))
+    showToast(`Đã chọn thêm ${ids.length} lớp!`, 'success')
+  }
   const [split, setSplit] = useState(loadSplit)
   const [isDraggingSplit, setIsDraggingSplit] = useState(false)
   const [isSplitAnimating, setIsSplitAnimating] = useState(false)
@@ -681,6 +719,15 @@ export default function App() {
 
           <div className="hdr-tools">
             <button
+              className="hdr-btn hdr-btn-auto"
+              onClick={() => setShowAutoModal(true)}
+              title="Tự động xếp Thời khóa biểu thông minh"
+            >
+              <span>⚡</span>
+              <span>Xếp TKB Tự Động</span>
+            </button>
+
+            <button
               className="hdr-btn"
               onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
               title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
@@ -770,8 +817,10 @@ export default function App() {
                       blockedReason={blocked}
                       suggestIds={suggestIds}
                       onToggle={toggle}
+                      onSelectMultiple={handleSelectMultipleClasses}
                       filterMH={filterMH}
                       onFilterMHChange={setFilterMH}
+                      onProfClick={handleProfClick}
                     />
                   </motion.div>
                 )}
@@ -853,6 +902,7 @@ export default function App() {
                   planName={activePlan.name}
                   onDeselect={toggle}
                   onSelectCourse={handleSelectCourse}
+                  onProfClick={handleProfClick}
                 />
               </div>
                   </motion.div>
@@ -871,6 +921,19 @@ export default function App() {
         planName={activePlan?.name || ''}
         onImport={importCodes}
       />
+      <AutoScheduleModal
+        open={showAutoModal}
+        onClose={() => setShowAutoModal(false)}
+        allClasses={classes || []}
+        onApplyPlan={handleApplyAutoPlan}
+        onProfClick={handleProfClick}
+      />
+      <ProfModal
+        profName={profModalName}
+        isOpen={showProfModal}
+        onClose={() => setShowProfModal(false)}
+      />
+      <Footer />
       {busy && <div className="busy-overlay">Đang xử lý…</div>}
       {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
     </div>
