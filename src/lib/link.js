@@ -61,6 +61,26 @@ export function matchKhoaFilter(c, studentCohort) {
   })
 }
 
+// Kiểm tra lớp có khớp danh sách Hệ ĐTDKHP người dùng chọn hay không.
+// selectedHeDTs: mảng string hệ đã chọn (vd ['CTTN', 'CQUI']).
+// QUAN TRỌNG: Ô trống cột heDTDKHP có nghĩa là mở chung cho tất cả các hệ — không bị lọc.
+// So khớp CHÍNH XÁC (trim + toUpperCase) từng phần tử sau khi tách dấu phẩy/cách.
+export function matchHeDTFilter(c, selectedHeDTs) {
+  if (!selectedHeDTs || selectedHeDTs.length === 0) return true
+  const raw = c.heDTDKHP
+  if (!raw || String(raw).trim() === '') return true // mở chung
+
+  const cellValues = String(raw)
+    .split(/[,;\s]+/)
+    .map((s) => s.trim().toUpperCase())
+    .filter(Boolean)
+
+  const selected = selectedHeDTs.map((s) => String(s).trim().toUpperCase())
+
+  // Lớp pass nếu ít nhất 1 hệ trong ô khớp với 1 hệ người dùng chọn
+  return cellValues.some((v) => selected.includes(v))
+}
+
 // Bỏ đoạn cuối sau dấu chấm: "IT007.R19.1" -> "IT007.R19"
 export function stripLastSeg(code) {
   const i = code.lastIndexOf('.')

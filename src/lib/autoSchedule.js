@@ -1,4 +1,4 @@
-import { isLT, isTH, isChildOf, matchKhoaFilter } from './link.js'
+import { isLT, isTH, isChildOf, matchKhoaFilter, matchHeDTFilter } from './link.js'
 import { isConflict } from './tiet.js'
 import { getProfReviewData, getProfScore, normalizeGV } from './profReview.js'
 
@@ -65,6 +65,7 @@ export function autoSchedule({
   selectedCourses,
   freeDays = [],
   selectedKhoa = '',
+  selectedHeDTs = [],
   allClasses,
   profData,
   maxResults = 3,
@@ -82,6 +83,7 @@ export function autoSchedule({
   for (const c of allClasses) {
     if (!selectedCourses.includes(c.maMH)) continue
     if (selectedKhoa && !matchKhoaFilter(c, selectedKhoa)) continue
+    if (!matchHeDTFilter(c, selectedHeDTs)) continue
 
     if (!courseMap.has(c.maMH)) {
       courseMap.set(c.maMH, { lt: [], th: [], other: [] })
@@ -217,6 +219,7 @@ export function autoSchedule({
 export function autoScheduleEngine(selectedSubjectCodes, allClasses, options = {}) {
   const {
     studentCohort = '',
+    selectedHeDTs = [],
     preferredDaysOff = [],
     topK = 5,
     jitter = false,
@@ -233,6 +236,7 @@ export function autoScheduleEngine(selectedSubjectCodes, allClasses, options = {
     selectedCourses: cleanedCodes,
     freeDays: preferredDaysOff,
     selectedKhoa: studentCohort,
+    selectedHeDTs,
     allClasses: validClasses,
     profData: getProfReviewData,
     maxResults: topK,

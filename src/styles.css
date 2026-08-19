@@ -3383,10 +3383,18 @@ select.ct-fi {
   gap: 6px;
 }
 
+/* Hệ ĐTDKHP box: chiếm full width khi có nhiều hệ */
+.asm-option-box--full {
+  width: 100%;
+}
+
 .asm-opt-label {
   font-size: 12.5px;
   font-weight: 700;
   color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 :root[data-theme="dark"] .asm-opt-label {
@@ -3437,6 +3445,48 @@ select.ct-fi {
   background: #16a34a !important;
   color: #ffffff !important;
   border-color: #16a34a !important;
+}
+
+/* Nút "Bỏ chọn hết" inline bên cạnh label Hệ ĐTDKHP */
+.asm-hedt-clear {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-weight: 500;
+}
+
+.asm-hedt-clear:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+:root[data-theme="dark"] .asm-hedt-clear {
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+:root[data-theme="dark"] .asm-hedt-clear:hover {
+  background: #451a1a;
+  border-color: #ef4444;
+  color: #f87171;
+}
+
+/* Hint text dưới pill hệ */
+.asm-hedt-hint {
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin: 0;
+  font-style: italic;
+}
+
+:root[data-theme="dark"] .asm-hedt-hint {
+  color: #64748b;
 }
 
 /* Action Footer */

@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { autoScheduleEngine } from '../lib/autoSchedule.js'
 import { getProfReviewData, getProfBadgeInfo } from '../lib/profReview.js'
 import { DAYS, TIET_LIST, formatTiet } from '../lib/tiet.js'
+import { matchHeDTFilter } from '../lib/link.js'
 
-const AUTO_STORAGE_KEY = 'dkhp.autoScheduleState.v1'
+const AUTO_STORAGE_KEY = 'dkhp.autoScheduleState.v2'
 
 // Bảng màu chuẩn như trong thiết kế mẫu
 const SUBJECT_COLORS = [
@@ -125,6 +126,7 @@ export default function AutoScheduleModal({
   const [searchInput, setSearchInput] = useState('')
   const [selectedSubjects, setSelectedSubjects] = useState([])
   const [studentCohort, setStudentCohort] = useState('')
+  const [selectedHeDTs, setSelectedHeDTs] = useState([])
   const [preferredOffDays, setPreferredOffDays] = useState([])
   const [results, setResults] = useState([])
   const [isJittering, setIsJittering] = useState(false)
@@ -138,6 +140,7 @@ export default function AutoScheduleModal({
         const data = JSON.parse(raw)
         if (data.selectedSubjects) setSelectedSubjects(data.selectedSubjects)
         if (data.studentCohort) setStudentCohort(data.studentCohort)
+        if (data.selectedHeDTs) setSelectedHeDTs(data.selectedHeDTs)
         if (data.preferredOffDays) setPreferredOffDays(data.preferredOffDays)
         if (data.searchInput) setSearchInput(data.searchInput)
       }
@@ -152,12 +155,13 @@ export default function AutoScheduleModal({
         JSON.stringify({
           selectedSubjects,
           studentCohort,
+          selectedHeDTs,
           preferredOffDays,
           searchInput,
         })
       )
     } catch (e) {}
-  }, [selectedSubjects, studentCohort, preferredOffDays, searchInput])
+  }, [selectedSubjects, studentCohort, selectedHeDTs, preferredOffDays, searchInput])
 
   // Danh sách môn học chuẩn bị dữ liệu
   const subjectListInfo = useMemo(() => {
@@ -248,6 +252,21 @@ export default function AutoScheduleModal({
     return Array.from(set).sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
   }, [allClasses])
 
+  // Tự động trích xuất danh sách tất cả Hệ ĐTDKHP có trong file Excel
+  const dynamicHeDTs = useMemo(() => {
+    const set = new Set()
+    allClasses.forEach((c) => {
+      const raw = c.heDTDKHP
+      if (!raw || String(raw).trim() === '') return
+      String(raw)
+        .split(/[,;\s]+/)
+        .map((s) => s.trim().toUpperCase())
+        .filter(Boolean)
+        .forEach((v) => set.add(v))
+    })
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'vi'))
+  }, [allClasses])
+
   function toggleSubject(maMH) {
     setSelectedSubjects((prev) =>
       prev.includes(maMH) ? prev.filter((x) => x !== maMH) : [...prev, maMH]
@@ -274,6 +293,12 @@ export default function AutoScheduleModal({
     )
   }
 
+  function toggleHeDT(he) {
+    setSelectedHeDTs((prev) =>
+      prev.includes(he) ? prev.filter((h) => h !== he) : [...prev, he]
+    )
+  }
+
   function runAutoSchedule(jitter = false) {
     if (selectedSubjects.length === 0 || isScheduling) return
     setIsScheduling(true)
@@ -282,6 +307,7 @@ export default function AutoScheduleModal({
     setTimeout(() => {
       const plans = autoScheduleEngine(selectedSubjects, allClasses, {
         studentCohort,
+        selectedHeDTs,
         preferredDaysOff: preferredOffDays,
         topK: 5,
         jitter,
@@ -470,6 +496,45 @@ export default function AutoScheduleModal({
                     ))}
                   </select>
                 </div>
+
+                {/* Hệ đào tạo ĐKHP — hiện khi file có dữ liệu */}
+                {dynamicHeDTs.length > 0 && (
+                  <div className="asm-option-box asm-option-box--full">
+                    <label className="asm-opt-label">
+                      🏫 Hệ đăng ký học phần:
+                      {selectedHeDTs.length > 0 && (
+                        <button
+                          type="button"
+                          className="asm-hedt-clear"
+                          onClick={() => setSelectedHeDTs([])}
+                          title="Bỏ chọn tất cả hệ"
+                        >
+                          Bỏ chọn hết
+                        </button>
+                      )}
+                    </label>
+                    <div className="asm-days-group">
+                      {dynamicHeDTs.map((he) => {
+                        const isChecked = selectedHeDTs.includes(he)
+                        return (
+                          <button
+                            key={he}
+                            type="button"
+                            className={`asm-day-pill ${isChecked ? 'selected' : ''}`}
+                            onClick={() => toggleHeDT(he)}
+                          >
+                            {he}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <p className="asm-hedt-hint">
+                      {selectedHeDTs.length === 0
+                        ? 'Không chọn = hiện tất cả hệ (mở chung). Chọn 1 hoặc nhiều hệ để lọc chính xác.'
+                        : `Đang lọc: ${selectedHeDTs.join(', ')} — lớp mở chung vẫn được hiển thị.`}
+                    </p>
+                  </div>
+                )}
 
                 <div className="asm-option-box">
                   <label className="asm-opt-label">🗓 Ưu tiên nghỉ các ngày:</label>
